@@ -10,8 +10,6 @@ import {
   Flame,
   Lock,
   Map as MapIcon,
-  Mic,
-  NotebookPen,
   Plus,
   Radar,
   Shield,
@@ -19,6 +17,7 @@ import {
   Sunrise,
   Target,
   Trash2,
+  Undo2,
   Unlock,
   X,
   Zap,
@@ -495,6 +494,11 @@ function formatShort(iso) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function formatLong(iso) {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 // ---------- State ----------
 
 function createInitialState() {
@@ -738,7 +742,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafaf7] text-stone-900">
+    <div className="min-h-screen bg-paper text-ink">
       <Header trackInfo={trackInfo} streak={state.streak} />
       <Tabs active={tab} onChange={setTab} />
 
@@ -749,7 +753,7 @@ export default function App() {
             currentStage={currentStage}
             calendar={calendar}
             isTrackLocked={isTrackLocked}
-            onOpenTrack={() => (isTrackLocked ? setSwitchingCostOpen(true) : setTrackModalOpen(true))}
+            onOpenTrack={() => setSwitchingCostOpen(true)}
             onCheckIn={checkInToday}
             onSetMode={setAnchorMode}
             onToggleCheck={toggleAnchorCheck}
@@ -809,32 +813,38 @@ export default function App() {
 // ---------- Layout ----------
 
 function Header({ trackInfo, streak }) {
+  const graceLeft = 2 - streak.graceUsedThisMonth;
   return (
-    <header className="mx-auto max-w-5xl px-4 pt-8 pb-4">
-      <div className="flex items-baseline justify-between gap-4">
+    <header className="mx-auto max-w-5xl px-4 pb-4 pt-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <h1 className="font-serif text-3xl tracking-tight text-stone-900">FDE / SE Roadmap</h1>
-          <p className="mt-1 truncate text-sm text-stone-500">
-            Primary: {trackInfo.short} · Dec 2026 offer · {trackInfo.salaryBand}
+          <div className="eyebrow">{formatLong(todayISO())} · No. {String(diffDays(CALENDAR_START_DATE, todayISO()) + 1).padStart(3, "0")}</div>
+          <h1 className="mt-1 font-serif text-4xl font-medium leading-[0.95] tracking-tight text-ink sm:text-5xl">
+            FDE / SE Roadmap
+          </h1>
+          <p className="mt-2 text-sm text-stone-600">
+            Primary: {trackInfo.short} <span className="text-stone-400">·</span> Dec 2026 offer <span className="text-stone-400">·</span> <span className="tabular">{trackInfo.salaryBand}</span>
           </p>
         </div>
-        <div className="flex items-center gap-3 text-right">
-          <div className="flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs">
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center gap-1.5 rounded-full border border-stone-300 bg-paper px-3 py-1.5 text-xs">
             <Flame size={12} className="text-amber-700" />
-            <span className="font-mono text-stone-800">{streak.count}-day streak</span>
-            <span className="text-stone-500">· {2 - streak.graceUsedThisMonth} grace left</span>
+            <span className="tabular font-medium text-ink">{streak.count}</span>
+            <span className="text-stone-500">day streak</span>
+            <span className="hidden text-stone-400 sm:inline">·</span>
+            <span className="hidden tabular text-stone-500 sm:inline">{graceLeft}/2 grace</span>
           </div>
-          <div className="text-xs uppercase tracking-widest text-stone-400">{todayISO()}</div>
         </div>
       </div>
+      <div className="rule mt-5" />
     </header>
   );
 }
 
 function Tabs({ active, onChange }) {
   return (
-    <nav className="sticky top-0 z-10 border-b border-stone-200 bg-[#fafaf7]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center gap-1 overflow-x-auto px-4 py-3">
+    <nav className="sticky top-0 z-10 border-b border-rule bg-paper/95 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-start gap-1 px-4 py-2 sm:gap-2">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -842,14 +852,15 @@ function Tabs({ active, onChange }) {
             <button
               key={tab.id}
               onClick={() => onChange(tab.id)}
-              className={`flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm transition ${
+              aria-label={tab.label}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-full border px-3 py-1.5 text-sm transition sm:flex-none sm:px-4 ${
                 isActive
-                  ? "border-stone-800 bg-stone-900 text-stone-50"
-                  : "border-stone-200 bg-white text-stone-600 hover:border-stone-400"
+                  ? "border-ink bg-ink text-paper"
+                  : "border-rule bg-paper text-stone-600 hover:border-stone-400 hover:text-ink"
               }`}
             >
-              <Icon size={14} />
-              {tab.label}
+              <Icon size={14} className="shrink-0" />
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           );
         })}
@@ -878,7 +889,6 @@ function SectionCard({ title, emphasis = false, children, footerNote, dark = fal
 // ---------- Today screen ----------
 
 function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onShiftCalendar }) {
-  const trackInfo = TRACKS[state.track];
   const checks = state.today.checks;
   const mode = state.today.anchorMode;
   const anchorComplete =
@@ -890,69 +900,29 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
   const daysToPeak = daysUntil(APPLICATION_PEAK_DATE);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 fade-up">
+      <CountdownStrip days={daysToPeak} targetISO={APPLICATION_PEAK_DATE} />
+
       <TrackLockBanner state={state} isTrackLocked={isTrackLocked} onOpen={onOpenTrack} />
 
-      <SectionCard
-        title={
-          <span className="flex items-center gap-2">
-            <Flame size={20} className="text-amber-600" /> Streak — track contact, not productivity
-          </span>
-        }
-        emphasis
-        footerNote={`Grace days: 2 free skips per calendar month. Used: ${state.streak.graceUsedThisMonth}/2.`}
-      >
-        <div className="flex flex-wrap items-center gap-3 text-sm">
-          <div className="rounded-lg bg-white px-3 py-2 text-stone-800 shadow-sm">
-            <span className="font-mono text-2xl text-stone-900">{state.streak.count}</span>{" "}
-            <span className="text-stone-500">day streak</span>
-          </div>
-          <button
-            onClick={onCheckIn}
-            disabled={!anchorComplete || checkedInToday}
-            className={`rounded-full border px-4 py-1.5 text-sm transition ${
-              checkedInToday
-                ? "border-emerald-400 bg-emerald-50 text-emerald-800"
-                : anchorComplete
-                  ? "border-stone-800 bg-stone-900 text-stone-50"
-                  : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
-            }`}
-          >
-            {checkedInToday ? "Checked in today ✓" : anchorComplete ? "Check in" : "Finish your anchor first"}
-          </button>
-          {lastCheckin && lastCheckin !== todayISO() && (
-            <span className="text-xs text-stone-500">Last check-in: {formatShort(lastCheckin)}</span>
-          )}
-        </div>
-      </SectionCard>
-
-      <AnchorSection mode={mode} checks={checks} onSetMode={onSetMode} onToggleCheck={onToggleCheck} currentStage={currentStage} />
+      <DailyCard
+        state={state}
+        mode={mode}
+        checks={checks}
+        anchorComplete={anchorComplete}
+        checkedInToday={checkedInToday}
+        lastCheckin={lastCheckin}
+        currentStage={currentStage}
+        onSetMode={onSetMode}
+        onToggleCheck={onToggleCheck}
+        onCheckIn={onCheckIn}
+      />
 
       <CurrentStagePanel state={state} stage={currentStage} calendar={calendar} onShipMVP={onShipMVP} onShiftCalendar={onShiftCalendar} />
 
-      <SectionCard title={<span className="flex items-center gap-2"><Target size={18} /> This week's deliverable</span>}>
-        <p className="text-sm text-stone-700">{currentStage.deliverable}</p>
-      </SectionCard>
+      <SprintTargetsRow />
 
-      <SectionCard
-        title={<span className="flex items-center gap-2"><Briefcase size={18} /> Application peak countdown</span>}
-        footerNote={`Peak applications target: ${APPLICATION_PEAK_DATE}. ${BUFFER_WEEKS} weeks of buffer baked into the calendar.`}
-      >
-        <div className="flex items-baseline gap-3">
-          <div className="font-mono text-4xl text-stone-900">{daysToPeak}</div>
-          <div className="text-sm text-stone-600">days until October 1</div>
-        </div>
-        <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-stone-500 md:grid-cols-2">
-          {SPRINT_TARGETS.map((s) => (
-            <div key={s.date} className="flex gap-2">
-              <span className="w-14 font-mono text-stone-400">{s.date}</span>
-              <span>{s.target}</span>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-
-      <SectionCard title="The Rule (always visible)" dark>
+      <SectionCard title="The Rule" dark>
         <p className="text-sm leading-relaxed">
           Type every line yourself. AI answers questions. AI does not write code.{" "}
           <span className="font-semibold">Copilot OFF.</span>
@@ -962,104 +932,169 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
   );
 }
 
-function TrackLockBanner({ state, isTrackLocked, onOpen }) {
-  const trackInfo = TRACKS[state.track];
-  if (isTrackLocked) {
-    return (
-      <section className="rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50/70 p-4 shadow-sm">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 text-sm font-medium text-stone-900">
-              <Lock size={14} /> Locked on {trackInfo.short} until {state.trackLockedUntil}
-            </div>
-            <p className="mt-1 text-xs text-stone-600">
-              To re-evaluate, write 200+ words on what changed.
-            </p>
-          </div>
-          <button onClick={onOpen} className="shrink-0 rounded-full border border-amber-400 bg-white px-3 py-1 text-xs hover:bg-amber-100">
-            Re-evaluate
-          </button>
-        </div>
-      </section>
-    );
-  }
+function CountdownStrip({ days, targetISO }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 text-sm font-medium text-stone-900">
-            <Unlock size={14} /> Track unlocked: {trackInfo.short}
+    <div className="flex items-baseline justify-between rounded-lg border border-rule bg-paper-dark/70 px-4 py-2.5">
+      <div className="flex items-baseline gap-2">
+        <span className="eyebrow">Application peak</span>
+        <span className="text-xs text-stone-500">{formatLong(targetISO)}</span>
+      </div>
+      <div className="flex items-baseline gap-1.5">
+        <span className="tabular font-serif text-3xl font-medium leading-none text-ink">{days}</span>
+        <span className="text-xs text-stone-500">days</span>
+      </div>
+    </div>
+  );
+}
+
+function SprintTargetsRow() {
+  return (
+    <section className="rounded-2xl border border-rule bg-paper p-5">
+      <h2 className="eyebrow">Sprint targets</h2>
+      <ul className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 md:grid-cols-4">
+        {SPRINT_TARGETS.map((s) => (
+          <li key={s.date} className="border-l-2 border-rule pl-3">
+            <div className="tabular font-mono text-xs text-stone-500">{s.date}</div>
+            <div className="mt-0.5 text-stone-800">{s.target}</div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function DailyCard({ state, mode, checks, anchorComplete, checkedInToday, lastCheckin, currentStage, onSetMode, onToggleCheck, onCheckIn }) {
+  const fullItems = ["1 InterviewQuery problem", "1 DataCamp lesson", `1 ${currentStage.title} build task`];
+  const halfItems = ["1 InterviewQuery problem", `1 ${currentStage.title} build task`];
+  const graceLeft = 2 - state.streak.graceUsedThisMonth;
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-rule bg-paper shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-[auto_1fr]">
+        <div className="border-b border-rule bg-paper-dark/60 px-5 py-5 md:border-b-0 md:border-r md:px-7">
+          <div className="eyebrow">Today · streak</div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="tabular font-serif text-6xl font-medium leading-none text-ink">{state.streak.count}</span>
+            <span className="text-sm text-stone-500">day{state.streak.count === 1 ? "" : "s"}</span>
           </div>
-          <p className="mt-1 text-xs text-stone-600">{trackInfo.summary}</p>
+          <div className="mt-2 flex items-center gap-1.5 text-xs">
+            <Flame size={11} className="text-amber-700" />
+            <span className="tabular text-stone-600">{graceLeft}/2 grace left</span>
+          </div>
+          <div className="mt-4">
+            <button
+              onClick={onCheckIn}
+              disabled={!anchorComplete || checkedInToday}
+              className={`w-full rounded-full border px-3 py-1.5 text-xs transition ${
+                checkedInToday
+                  ? "border-sage bg-sage/10 text-sage"
+                  : anchorComplete
+                    ? "border-ink bg-ink text-paper hover:bg-stone-800"
+                    : "cursor-not-allowed border-rule bg-paper-dark/40 text-stone-400"
+              }`}
+            >
+              {checkedInToday ? "Checked in today ✓" : anchorComplete ? "Check in" : "Finish anchor below"}
+            </button>
+          </div>
+          {lastCheckin && lastCheckin !== todayISO() && (
+            <div className="mt-2 text-[10px] text-stone-500">Last: {formatShort(lastCheckin)}</div>
+          )}
         </div>
-        <button onClick={onOpen} className="shrink-0 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs hover:border-stone-500">
-          Change track
-        </button>
+
+        <div className="px-5 py-5 md:px-7">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="eyebrow">Anchor mode</div>
+              <h3 className="mt-1 font-serif text-xl tracking-tight">Today's contact, not productivity</h3>
+            </div>
+            <div className="hidden text-right text-xs text-stone-500 md:block">
+              {mode === "mvd" ? "5 minutes counts" : mode === "half" ? "Bad-focus day fallback" : "Real day"}
+            </div>
+          </div>
+
+          <div className="mt-3 inline-flex rounded-full border border-rule p-0.5 text-xs">
+            {[
+              { id: "full", label: "Full", icon: Zap },
+              { id: "half", label: "Half", icon: Sparkles },
+              { id: "mvd", label: "MVD · 5min", icon: Coffee },
+            ].map((m) => {
+              const Icon = m.icon;
+              const isActive = mode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => onSetMode(m.id)}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 transition ${
+                    isActive ? "bg-ink text-paper" : "text-stone-500 hover:text-ink"
+                  }`}
+                >
+                  <Icon size={11} />
+                  {m.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {mode === "full" &&
+              fullItems.map((item, i) => (
+                <CheckRow key={i} checked={checks.full[i]} onChange={() => onToggleCheck("full", i)} label={item} />
+              ))}
+            {mode === "half" &&
+              halfItems.map((item, i) => (
+                <CheckRow key={i} checked={checks.half[i]} onChange={() => onToggleCheck("half", i)} label={item} />
+              ))}
+            {mode === "mvd" && (
+              <CheckRow
+                checked={checks.mvd}
+                onChange={() => onToggleCheck("mvd")}
+                label="1 IQ problem read · or · 1 Anthropic doc paragraph · or · 1 Loom watched"
+                hint="Streak tracks contact, not productivity."
+              />
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function AnchorSection({ mode, checks, onSetMode, onToggleCheck, currentStage }) {
-  const fullItems = [
-    "1 InterviewQuery problem",
-    "1 DataCamp lesson",
-    `1 ${currentStage.title} build task`,
-  ];
-  const halfItems = ["1 InterviewQuery problem", `1 ${currentStage.title} build task`];
-
+function TrackLockBanner({ state, isTrackLocked, onOpen }) {
+  const trackInfo = TRACKS[state.track];
+  if (isTrackLocked) {
+    return (
+      <section className="flex items-start justify-between gap-3 rounded-lg border-l-4 border-amber-700 bg-amber-50/60 px-4 py-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-sm font-medium text-ink">
+            <Lock size={13} className="text-amber-700" />
+            Locked on {trackInfo.short} until {formatLong(state.trackLockedUntil)}
+          </div>
+          <p className="mt-0.5 text-xs text-stone-600">
+            To re-evaluate, write 200+ characters on what changed.
+          </p>
+        </div>
+        <button
+          onClick={onOpen}
+          className="shrink-0 rounded-full border border-amber-700 bg-paper px-3 py-1 text-xs text-amber-900 hover:bg-amber-100"
+        >
+          Re-evaluate
+        </button>
+      </section>
+    );
+  }
   return (
-    <SectionCard
-      title={<span className="flex items-center gap-2"><Sunrise size={18} /> Today's anchor</span>}
-      footerNote="Pick the mode that matches today's focus. MVD still counts as a streak day."
-    >
-      <div className="flex flex-wrap gap-2">
-        {[
-          { id: "full", label: "Full Day", icon: Zap },
-          { id: "half", label: "Half Day", icon: Sparkles },
-          { id: "mvd", label: "MVD (5 min)", icon: Coffee },
-        ].map((m) => {
-          const Icon = m.icon;
-          const isActive = mode === m.id;
-          return (
-            <button
-              key={m.id}
-              onClick={() => onSetMode(m.id)}
-              className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${
-                isActive
-                  ? "border-stone-800 bg-stone-900 text-stone-50"
-                  : "border-stone-200 bg-white text-stone-600 hover:border-stone-400"
-              }`}
-            >
-              <Icon size={14} />
-              {m.label}
-            </button>
-          );
-        })}
+    <section className="flex items-start justify-between gap-3 rounded-lg border border-rule bg-paper px-4 py-3">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 text-sm font-medium text-ink">
+          <Unlock size={13} className="text-sage" />
+          Track unlocked: {trackInfo.short}
+        </div>
+        <p className="mt-0.5 text-xs text-stone-600">{trackInfo.summary}</p>
       </div>
-
-      <div className="mt-2 space-y-2">
-        {mode === "full" &&
-          fullItems.map((item, i) => (
-            <CheckRow key={i} checked={checks.full[i]} onChange={() => onToggleCheck("full", i)} label={item} />
-          ))}
-        {mode === "half" &&
-          halfItems.map((item, i) => (
-            <CheckRow key={i} checked={checks.half[i]} onChange={() => onToggleCheck("half", i)} label={item} />
-          ))}
-        {mode === "mvd" && (
-          <>
-            <p className="text-xs text-stone-500">Pick exactly one. 5 minutes counts.</p>
-            <CheckRow
-              checked={checks.mvd}
-              onChange={() => onToggleCheck("mvd")}
-              label="1 InterviewQuery problem read (not solved) OR 1 paragraph of an Anthropic doc OR 1 Loom watched"
-              hint="Streak tracks contact, not productivity."
-            />
-          </>
-        )}
-      </div>
-    </SectionCard>
+      <button onClick={onOpen} className="shrink-0 rounded-full border border-rule bg-paper px-3 py-1 text-xs hover:border-stone-500">
+        Change track
+      </button>
+    </section>
   );
 }
 
@@ -1202,15 +1237,31 @@ function FloatingCalendar({ calendar, state, currentStageId }) {
   const today = todayISO();
   const totalDays = diffDays(calendar.start, calendar.bufferEnd);
   const todayOffset = Math.max(0, Math.min(totalDays, diffDays(calendar.start, today)));
+  const todayPct = (todayOffset / totalDays) * 100;
+  const STAGE_LABELS = ["SQL", "Python", "AI Eng", "Vertical", "Customer", "Cloud", "Sprint"];
   return (
-    <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+    <div className="mt-4 rounded-lg border border-rule bg-paper-dark/50 p-4">
       <div className="flex items-baseline justify-between text-xs text-stone-500">
-        <span>Floating calendar (shifts on missed days)</span>
-        <span className="font-mono">
-          {formatShort(calendar.start)} → {formatShort(calendar.bufferEnd)} · peak {formatShort(calendar.peak)}
+        <span className="eyebrow">Floating calendar — shifts on missed days</span>
+        <span className="tabular font-mono text-[10px]">
+          {formatShort(calendar.start)} → {formatShort(calendar.bufferEnd)} <span className="text-stone-400">· peak</span> {formatShort(calendar.peak)}
         </span>
       </div>
-      <div className="relative mt-2 h-9 w-full overflow-hidden rounded border border-stone-200 bg-white">
+
+      {/* date scale */}
+      <div className="relative mt-3 h-3 text-[9px] text-stone-400">
+        {calendar.layout.map((row) => {
+          const left = (diffDays(calendar.start, row.startISO) / totalDays) * 100;
+          return (
+            <span key={row.stageId} className="absolute top-0 -translate-x-1/2 tabular font-mono" style={{ left: `${left}%` }}>
+              {formatShort(row.startISO)}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* main bar */}
+      <div className="relative mt-1 h-9 w-full overflow-hidden rounded-md border border-rule bg-paper">
         {calendar.layout.map((row, idx) => {
           const left = (diffDays(calendar.start, row.startISO) / totalDays) * 100;
           const width = (row.days / totalDays) * 100;
@@ -1218,14 +1269,15 @@ function FloatingCalendar({ calendar, state, currentStageId }) {
           return (
             <div
               key={row.stageId}
-              className={`absolute top-0 h-full border-r border-white text-[10px] ${
-                isCurrent ? "bg-amber-300" : idx % 2 === 0 ? "bg-stone-300" : "bg-stone-200"
+              className={`absolute top-0 h-full overflow-hidden border-r border-paper text-[10px] ${
+                isCurrent ? "bg-amber-200" : idx % 2 === 0 ? "bg-stone-200" : "bg-stone-100"
               }`}
               style={{ left: `${left}%`, width: `${width}%` }}
-              title={`${STAGES[idx].title}: ${formatShort(row.startISO)} → ${formatShort(row.endISO)}`}
+              title={`${STAGES[idx].title}: ${formatLong(row.startISO)} → ${formatLong(row.endISO)}`}
             >
-              <span className="absolute inset-0 flex items-center justify-center font-mono text-stone-700">
-                S{idx + 1}
+              <span className="absolute inset-0 flex items-center justify-start gap-1 truncate px-1.5 text-[10px] font-medium text-stone-700">
+                <span className="tabular text-[9px] text-stone-500">S{idx + 1}</span>
+                <span className="truncate">{STAGE_LABELS[idx]}</span>
               </span>
             </div>
           );
@@ -1233,29 +1285,32 @@ function FloatingCalendar({ calendar, state, currentStageId }) {
         {/* buffer */}
         {(() => {
           const left = (diffDays(calendar.start, calendar.bufferStart) / totalDays) * 100;
-          const width = (BUFFER_WEEKS * 7) / totalDays * 100;
+          const width = ((BUFFER_WEEKS * 7) / totalDays) * 100;
           return (
             <div
-              className="absolute top-0 h-full border-r border-white bg-emerald-200 text-[10px]"
+              className="absolute top-0 h-full border-r border-paper bg-sage/25 text-[10px]"
               style={{ left: `${left}%`, width: `${width}%` }}
               title="Buffer (2 weeks)"
             >
-              <span className="absolute inset-0 flex items-center justify-center font-mono text-emerald-900">BUF</span>
+              <span className="absolute inset-0 flex items-center justify-center font-mono text-sage">BUF</span>
             </div>
           );
         })()}
         {/* today line */}
         <div
-          className="absolute top-0 h-full w-[2px] bg-stone-900"
-          style={{ left: `${(todayOffset / totalDays) * 100}%` }}
-          title="Today"
-        />
+          className="pointer-events-none absolute top-0 h-full w-[2px] bg-ink"
+          style={{ left: `${todayPct}%` }}
+        >
+          <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ink px-1.5 py-0.5 text-[8px] uppercase tracking-widest text-paper">
+            today
+          </span>
+        </div>
       </div>
-      <div className="mt-1 flex items-center gap-3 text-[10px] text-stone-500">
-        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 bg-amber-300" /> current</span>
-        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 bg-emerald-200" /> buffer</span>
-        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-3 bg-stone-900" /> today</span>
-        {(state.calendarShiftDays || 0) > 0 && <span className="ml-auto">Shifted +{state.calendarShiftDays} days</span>}
+
+      <div className="mt-2 flex items-center gap-4 text-[10px] text-stone-500">
+        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 bg-amber-200" /> current stage</span>
+        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 bg-sage/25" /> buffer</span>
+        {(state.calendarShiftDays || 0) > 0 && <span className="ml-auto tabular">Shifted +{state.calendarShiftDays} days</span>}
       </div>
     </div>
   );
@@ -1391,11 +1446,11 @@ function ApplicationTimeline({ state, onSetStatus }) {
   return (
     <SectionCard title={<span className="flex items-center gap-2"><Briefcase size={18} /> Application Timeline</span>}>
       <div className="flex flex-wrap gap-2 text-xs">
-        <StatusPill label={`Applied: ${summary.applied}`} variant="applied" />
-        <StatusPill label={`Phone screens: ${summary.screen}`} variant="phone_screen" />
-        <StatusPill label={`Interviews: ${summary.interview}`} variant="interview" />
-        <StatusPill label={`Offers: ${summary.offer}`} variant="offer" />
-        <StatusPill label={`Rejected: ${summary.rejected}`} variant="rejected" />
+        <StatusPill label="Applied" count={summary.applied} variant="applied" />
+        <StatusPill label="Phone screens" count={summary.screen} variant="phone_screen" />
+        <StatusPill label="Interviews" count={summary.interview} variant="interview" />
+        <StatusPill label="Offers" count={summary.offer} variant="offer" />
+        <StatusPill label="Rejected" count={summary.rejected} variant="rejected" />
       </div>
 
       <div className="mt-4">
@@ -1430,63 +1485,75 @@ function ApplicationTimeline({ state, onSetStatus }) {
   );
 }
 
-function StatusPill({ label, variant }) {
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 ${STATUS_STYLES[variant]}`}>{label}</span>;
+function StatusPill({ label, count, variant }) {
+  const isZero = count === 0;
+  const cls = isZero ? "border-rule bg-paper text-stone-400" : STATUS_STYLES[variant];
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 ${cls}`}>
+      <span>{label}</span>
+      <span className={`tabular ${isZero ? "text-stone-400" : "font-medium"}`}>{count}</span>
+    </span>
+  );
 }
 
 function ApplicationTable({ title, items, showWindow, showPriority, applications, onSetStatus }) {
   return (
     <div className="mt-4">
-      <h4 className="text-xs uppercase tracking-widest text-stone-500">{title}</h4>
-      <div className="mt-2 overflow-x-auto">
-        <table className="w-full min-w-[640px] text-sm">
-          <thead>
-            <tr className="text-left text-xs uppercase tracking-widest text-stone-400">
-              <th className="py-1.5 pr-3">Program</th>
-              {showPriority && <th className="py-1.5 pr-3">Priority</th>}
-              {showWindow && <th className="py-1.5 pr-3">Window</th>}
-              <th className="py-1.5 pr-3">Notes</th>
-              <th className="py-1.5 pr-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((p) => {
-              const a = applications[p.id] || {};
-              return (
-                <tr key={p.id} className="border-t border-stone-100">
-                  <td className="py-2 pr-3">
-                    <a href={p.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-stone-900 hover:underline">
-                      {p.name} <ExternalLink size={10} className="text-stone-400" />
-                    </a>
-                  </td>
-                  {showPriority && (
-                    <td className="py-2 pr-3">
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-widest ${PRIORITY_STYLES[p.priority]}`}>
+      <h4 className="eyebrow">{title}</h4>
+      <ul className="mt-3 space-y-1.5">
+        {items.map((p) => {
+          const a = applications[p.id] || {};
+          const status = a.status || "not_started";
+          return (
+            <li key={p.id} className="rounded-lg border border-rule bg-paper px-3 py-2.5 transition hover:border-stone-400">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-ink hover:underline"
+                  >
+                    {p.name}
+                    <ExternalLink size={10} className="text-stone-400" />
+                  </a>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                    {showPriority && (
+                      <span className={`rounded-full border px-1.5 py-0.5 text-[9px] uppercase tracking-widest ${PRIORITY_STYLES[p.priority]}`}>
                         {p.priority}
                       </span>
-                    </td>
-                  )}
-                  {showWindow && <td className="py-2 pr-3 text-xs text-stone-600">{p.window}</td>}
-                  <td className="py-2 pr-3 text-xs text-stone-600">{p.notes}</td>
-                  <td className="py-2 pr-3">
-                    <select
-                      value={a.status || "not_started"}
-                      onChange={(e) => onSetStatus(p.id, e.target.value)}
-                      className={`rounded border px-2 py-1 text-xs ${STATUS_STYLES[a.status || "not_started"]}`}
-                    >
-                      {APPLICATION_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {STATUS_LABELS[s]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                    )}
+                    {showWindow && <span className="tabular">{p.window}</span>}
+                    {p.notes && <span className="hidden md:inline">· {p.notes}</span>}
+                  </div>
+                </div>
+                <StatusChipToggle current={status} onPick={(s) => onSetStatus(p.id, s)} />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function StatusChipToggle({ current, onPick }) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {APPLICATION_STATUSES.map((s) => {
+        const active = current === s;
+        return (
+          <button
+            key={s}
+            onClick={() => onPick(s)}
+            className={`rounded-full border px-2 py-0.5 text-[10px] transition ${
+              active ? STATUS_STYLES[s] + " font-medium" : "border-rule bg-paper text-stone-400 hover:text-stone-700"
+            }`}
+          >
+            {STATUS_LABELS[s]}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -1538,6 +1605,7 @@ function ArtifactWall({ state, onAdd, onRemove }) {
   const [kind, setKind] = useState("sql_problem");
   const [description, setDescription] = useState("");
   const [dateISO, setDateISO] = useState(todayISO());
+  const [pendingDelete, setPendingDelete] = useState(null); // { artifact, timeoutId }
 
   const counts = useMemo(() => {
     const c = {};
@@ -1554,8 +1622,42 @@ function ArtifactWall({ state, onAdd, onRemove }) {
     setDescription("");
   }
 
+  function softDelete(artifact) {
+    if (pendingDelete?.timeoutId) clearTimeout(pendingDelete.timeoutId);
+    onRemove(artifact.id);
+    const timeoutId = setTimeout(() => setPendingDelete(null), 5000);
+    setPendingDelete({ artifact, timeoutId });
+  }
+
+  function undoDelete() {
+    if (!pendingDelete) return;
+    clearTimeout(pendingDelete.timeoutId);
+    onAdd({
+      kind: pendingDelete.artifact.kind,
+      description: pendingDelete.artifact.description,
+      dateISO: pendingDelete.artifact.dateISO,
+    });
+    setPendingDelete(null);
+  }
+
+  const undoBanner = pendingDelete && (
+    <div className="flex items-center justify-between rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+      <span>
+        Deleted: <span className="font-medium">{pendingDelete.artifact.description}</span>
+      </span>
+      <button
+        onClick={undoDelete}
+        className="inline-flex items-center gap-1 rounded-full border border-amber-400 bg-paper px-2.5 py-0.5 hover:bg-amber-100"
+      >
+        <Undo2 size={11} />
+        Undo
+      </button>
+    </div>
+  );
+
   return (
     <SectionCard title={<span className="flex items-center gap-2"><Shield size={18} /> Artifact Wall</span>} footerNote="Real shipped things only. No counting intentions.">
+      {undoBanner}
       <form onSubmit={submit} className="flex flex-wrap items-end gap-2 rounded-lg border border-stone-200 bg-stone-50 p-3">
         <div className="flex-1 min-w-[200px]">
           <label className="block text-[10px] uppercase tracking-widest text-stone-500">Type</label>
@@ -1612,7 +1714,7 @@ function ArtifactWall({ state, onAdd, onRemove }) {
                   <div className="text-[10px] uppercase tracking-widest text-stone-400">{kindLabel} · {formatShort(a.dateISO)}</div>
                   <div className="mt-0.5 text-sm text-stone-800">{a.description}</div>
                 </div>
-                <button onClick={() => onRemove(a.id)} className="shrink-0 rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700">
+                <button onClick={() => softDelete(a)} className="shrink-0 rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700" aria-label="Delete artifact">
                   <Trash2 size={12} />
                 </button>
               </li>
