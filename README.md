@@ -1,91 +1,84 @@
-# Data Engineer Quest
+# FDE / SE Roadmap
 
-A calm, ADHD-friendly learning OS for becoming interview-ready across Data Analyst, BI, BIE, Analytics Engineer, and DE-lite paths.
+A calm, ADHD-friendly learning OS aimed at landing a **Forward Deployed Engineer / AI Solutions Engineer** offer by December 2026.
 
-![Data Engineer Quest preview](./src/assets/hero.png)
+> **Primary track:** Forward Deployed Engineer / AI Solutions Engineer (FDE / SE)
+> **Fallback track:** BI Engineer / Analytics Engineer (BIE / AE)
+> **Target compensation:** $90k–$130k+
 
 ## Live Demo
 
-After GitHub Pages is enabled for this repository, the app will deploy automatically from `main`.
+After GitHub Pages is enabled, the app deploys automatically from `main`.
 
-Expected demo URL format:
-
-`https://<your-github-username>.github.io/<your-repo-name>/`
+`https://<github-username>.github.io/<repo-name>/`
 
 ## Why This Exists
 
-Most learning trackers either feel too generic, too motivational, or too disconnected from actual hiring outcomes. I built Data Engineer Quest as the operating system behind a serious data-career transition:
+Most learning trackers either feel too generic, too motivational, or too disconnected from actual hiring outcomes. This is the operating system behind a serious career transition into customer-facing AI engineering — built ADHD-first so missed days don't punish, and outcome-first so the only thing that counts is what you ship.
 
 - one clear next step instead of a pile of tabs
-- stage-based progression tied to DA / BI / BIE / AE readiness
-- portfolio projects linked to the learning path
-- lightweight proof and interview practice instead of fake completion
+- contact-based streaks (5-minute days still count)
+- floating calendar that shifts when you miss days, instead of a deadline that mocks you
+- ship-MVP buttons so you can declare a stage 30%-done and move on
 
-This is not meant to replace the actual portfolio projects. It is the system that organizes, paces, and makes those projects easier to finish well.
+## Tracks
 
-## What The Product Does
+The app supports two tracks. Both share the SQL/Python spine (Stages 1, 2, 7), then diverge.
 
-- Guides the user through a 90-day structured curriculum
-- Turns each lesson into a clear recipe: open, stop, build, write, mark done
-- Tracks role-readiness across Data Analyst, BI / BIE / Analytics Engineering, DE-lite, and AI-for-analyst workflows
-- Connects learning segments to real portfolio project steps
-- Surfaces top-tech strict readiness gates so progress is honest, not inflated
-- Includes interview practice, project framing, and proof-based skill tracking
+| | **FDE / SE (primary)** | **BIE / AE (fallback)** |
+|---|---|---|
+| **Target role** | Forward Deployed Engineer, AI Solutions Engineer, Customer Engineer | BI Engineer, Analytics Engineer, Senior Data Analyst |
+| **Differentiator** | Vertical AI agent + customer discovery + cloud cert | SQL depth + dashboard + Python pipeline |
+| **Companies** | Anthropic, OpenAI, Sierra, Decagon, Glean, Harvey, Hex, AWS Tech U, MS Aspire, Salesforce Futureforce | Insurance, healthcare, mid-size non-tech |
+| **Stages 3–6** | AI Engineering → Vertical Project → Customer Skills → Cloud Cert | Optional / lighter touch |
 
-## Who It Is For
+The **Track Lock banner** locks you on FDE/SE through August 1, 2026. To re-evaluate before then, you write 200+ characters of reasoning, and a Switching Cost calculator shows weeks invested, weeks until applications peak, and which artifacts wouldn't carry over.
 
-- Career changers moving into data roles
-- ADHD learners who need a calmer and more explicit progression system
-- People building toward analyst, BI, or pipeline-minded internships
-- Learners who want one product to organize curriculum, projects, readiness, and job prep
+## Resource Strategy
 
-## Key Product Decisions
+Total paid spend across 8 months: **~$310**. Everything else free or library-accessible.
 
-- **Recipe-driven Today flow**
-  The main screen is designed so a user can understand the next action in a few seconds.
+| Resource | Window | Use |
+|---|---|---|
+| **InterviewQuery** | LIFETIME | Daily anchor problem source May–Dec. Interview sprint platform in October. |
+| **DataCamp** | May–Jul 2026 only | Front-load SQL, Python, pandas. Surface-level for AI/LLM. Will not be renewed. |
+| **Anthropic docs / OpenAI Cookbook / Eugene Yan / Hamel evals** | Free | Where AI depth actually comes from. |
+| **Real Python / Missing Semester / FastAPI** | Free | Python + tooling depth. |
+| **Mode SQL / select-star / StrataScratch** | Free | SQL gap-fills. |
+| **Stephane Maarek Udemy + Tutorials Dojo** | ~$54 | AWS CCP + SAA prep. |
+| **AWS exam fees** | ~$100 + ~$150 | Cloud Practitioner + Solutions Architect Associate. |
+| **The Mom Test** | Library copy | Customer discovery framework. |
+| **Pramp / Exponent free trial / NWU careers** | Free | Mock interviews. |
 
-- **Project-driven learning**
-  Lessons are tied to the next unfinished project step so the curriculum does not feel abstract.
+## Missed Day Philosophy
 
-- **Strict readiness audit**
-  The app distinguishes between “done enough to move on” and “actually strong enough for top-tech style hiring bars.”
+The system does not punish you for being human. Four layers:
 
-- **Support-piece positioning**
-  This app is a polished frontend product and learning system, but the core hiring proof still lives in the linked data projects.
+1. **Grace days.** 2 free skip days per calendar month, applied automatically. Streak displays as `14-day streak · 1 grace left`.
+2. **Floating week structure.** Stages have *durations* (e.g., "4–5 weeks"), not deadlines. Miss 4 days, the calendar shifts 4 days. Only application deadlines are fixed.
+3. **Minimum Viable Day (MVD).** On bad-focus days, a 5-minute "contact" activity counts as the streak day — one IQ problem read, one Anthropic doc paragraph, one Loom watched. Streak tracks contact, not productivity.
+4. **Buffer weeks.** 2 weeks of slack baked between Stage 6 end (target end of September) and application peak (October 1). Falling behind eats buffer instead of missing applications.
 
-## What This Project Demonstrates
+## Stage MVPs
 
-- Frontend product implementation in React
-- UX design for ADHD-friendly flows
-- State-heavy single-page app design
-- Curriculum / product-system thinking
-- Clear project framing for portfolio support tools
-- Tasteful visual design for a calm, stationery-inspired interface
+Each stage has a "minimum viable" version representing the 30% you absolutely need. The Today screen and each stage detail page show a **Ship MVP** button — clicking it declares the stage done at the MVP level so you can move on if August arrives mid-stage.
 
-## Screens / Product Areas
+## Screens
 
-- **Today**
-  One main learning recipe plus a compact checkpoint panel
-
-- **Quest Map**
-  Full stage structure, readiness gates, and resource continuation
-
-- **Projects**
-  Portfolio steps, outcomes, and interview framing
-
-- **Gap Radar**
-  Proof-based progress toward top-company expectations
-
-- **Career HQ**
-  Resume, outreach, applications, and progress utilities
+- **Today** — Track Lock banner, streak with grace days, 3 anchor modes (Full / Half / MVD), current stage with Ship MVP, this week's deliverable, application peak countdown
+- **Quest Map** — 7-stage roadmap with floating calendar visualization, concepts, primary + gap-fill resources, MVP definition, done criteria
+- **Career HQ** — Application Timeline (23 programs across rolling + cohort tables), Gap Radar (track-specific readiness gates), Artifact Wall
+- **Resources** — Resource Strategy panel + every resource grouped by stage
+- **Future Pivots** — Honest acknowledgment of what's deferred
 
 ## Tech Stack
 
-- React
+- React 19
 - Vite
 - Tailwind CSS v4
 - Lucide React
-- Single-file state-driven architecture inside `src/App.jsx`
+- Single-file state-driven architecture in `src/App.jsx`
+- localStorage persistence (`de-roadmap-fde-se-v2`)
 
 ## Run Locally
 
@@ -102,27 +95,4 @@ npm run build
 
 ## GitHub Pages Deployment
 
-This repo includes a GitHub Actions workflow at `.github/workflows/deploy.yml`.
-
-To publish it:
-
-1. Push the repo to GitHub
-2. Keep the default branch as `main`
-3. In GitHub, open `Settings -> Pages`
-4. Set the source to `GitHub Actions`
-5. Push to `main` again if needed
-
-The Vite base path is derived automatically during GitHub Actions builds, so it should work under the repository subpath without hardcoding your future repo name.
-
-## Portfolio Framing
-
-This app is not my only portfolio artifact.
-
-It is the planning and progression system behind the deeper portfolio projects in data analysis, BI / BIE workflows, and pipeline thinking. The product itself shows frontend, UX, and systems-thinking ability, while the linked stage projects carry the role-specific proof.
-
-## Future Improvements
-
-- Better screenshot and social-preview polish
-- Optional backend or snapshot syncing beyond browser-local save state
-- Sharper onboarding for first-time users
-- More refined GitHub-ready demo presentation and case-study assets
+Workflow at `.github/workflows/deploy.yml` deploys from `main`. Set Pages source to "GitHub Actions" in repo settings, or use the `docs/` folder build that's also committed.
