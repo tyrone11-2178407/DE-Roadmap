@@ -79,6 +79,12 @@ const STAGES = [
     mvp: "SELECT, all 5 JOINs, GROUP BY, basic CTEs, ROW_NUMBER + RANK + CASE. Skip recursive CTEs and EXPLAIN.",
     done: "50 mixed SQL problems solved. Window functions from memory. 'Top 3 per category' cold in <5 min.",
     deliverable: "End of Stage 1: post a Notion page with 50 SQL problems, your queries, and 1-line takeaways.",
+    whyThisMatters: "FDE interviews at Sierra, Decagon, Hex test SQL on every loop. Even AI-native shops want you to debug a customer's query live. This is your foundation — and the cheapest stage to build confidence on.",
+    aiPrompts: [
+      "Explain INNER vs LEFT vs FULL OUTER JOIN with one e-commerce example each. Then quiz me on a tricky case where I have to pick.",
+      "I keep mixing up WHERE and HAVING. Give me 3 problems where the right answer requires the right one. Wait for my answer before showing yours.",
+      "Walk me through 'top N per category' using ROW_NUMBER. Then give me a similar problem cold and don't help unless I ask.",
+    ],
   },
   {
     id: "stage-2",
@@ -105,6 +111,12 @@ const STAGES = [
     mvp: "Python basics, pandas core, requests + JSON, can read AI-gen code line-by-line. Skip numpy depth, OAuth, pytest.",
     done: "Python script calling 2 APIs, joining with pandas, handling pagination + errors, outputting CSV. 30 IQ Python problems. Can explain every line of a 100-line AI-gen file.",
     deliverable: "End of Stage 2: a public GitHub repo with the API+pandas script, README, and a Loom walkthrough.",
+    whyThisMatters: "FDE work is 60% Python — building scripts that pull customer data, hit APIs, transform responses on a call. You can't fake this with AI alone, and it's the best signal that you can actually defend code in interviews.",
+    aiPrompts: [
+      "Show me 3 patterns for paginating a REST API in Python. Then give me a broken script and ask me to fix it without writing the fix yourself.",
+      "Explain pandas merge vs concat using a CRM dataset (customers + orders + tickets). Then quiz me on which to use in 4 scenarios.",
+      "I'll paste a 100-line AI-generated Python file. Quiz me on what each block does, line by line. Don't accept hand-wavy answers.",
+    ],
   },
   {
     id: "stage-3",
@@ -140,6 +152,12 @@ const STAGES = [
     mvp: "One LLM API used fluently (Anthropic OR OpenAI), basic prompts, one RAG built (any quality), tool use understood. Skip vector DB tuning + production eval.",
     done: "Working RAG pipeline you built and can explain. Agent with 2+ tools handling failures. JSON-output prompt valid 95%+. 30+ days daily Cursor or Claude Code.",
     deliverable: "End of Stage 3: a deployed RAG demo + a 1-page architecture write-up.",
+    whyThisMatters: "This is the differentiator. AI Engineering depth is what makes you 'forward deployed' instead of 'generic engineer'. Knowing where RAG breaks beats knowing 10 frameworks — recruiters ask 'why didn't your pipeline work in production?' and want a real answer.",
+    aiPrompts: [
+      "Walk me through a simple RAG pipeline over 50 PDFs. Then point out 3 places it would fail in production and how you'd diagnose each.",
+      "I'm stuck on tool use schemas. Give me 3 worked examples for an Anthropic-style tool call, then make me write one for a customer-support agent. Don't write it for me.",
+      "Quiz me on temperature, top_p, and structured outputs. After I answer, tell me which one I'd tune for a deterministic JSON-extraction task and why.",
+    ],
   },
   {
     id: "stage-4",
@@ -168,6 +186,12 @@ const STAGES = [
     mvp: "Pick vertical, complete 3 discovery calls (not 5), build prototype that runs locally, 1-min demo. Skip deployment + formal case study.",
     done: "Live deployed prototype + 2-min demo + 1-page case study + can defend code line-by-line + 5+ documented discovery calls.",
     deliverable: "End of Stage 4: deployed prototype, 2-min demo, written case study, 5+ discovery call notes.",
+    whyThisMatters: "FDE recruiters at Sierra/Decagon want to see you've actually shipped something with real users — not a tutorial. This is the project that replaces the AI-generated resume bullets you're not going to defend.",
+    aiPrompts: [
+      "Help me pick a vertical for my FDE prototype. My weak ties / accessible verticals are: [paste yours]. Find me 1 workflow that's repetitive enough to automate and small enough to ship in 6 weeks.",
+      "I'm prepping discovery calls with a [vertical role]. Walk me through 5 Mom Test questions, then role-play one of the calls. Be a difficult, busy person.",
+      "I shipped a working prototype but it feels embarrassing. Interview me on it for 5 minutes — toughest questions a Sierra FDE interviewer would ask. Then tell me what to fix before the call.",
+    ],
   },
   {
     id: "stage-5",
@@ -205,6 +229,12 @@ const STAGES = [
     mvp: "5 informational interviews (not 10), 5 STAR stories (not 15), Mom Test read.",
     done: "10+ informational interviews logged. 1 recorded mock discovery call. 1 recorded mock demo. 15 STAR stories. 5 LinkedIn posts.",
     deliverable: "End of Stage 5: STAR doc with 15 stories + Loom of one mock demo.",
+    whyThisMatters: "FDE is 50% engineering, 50% customer. Most CS grads can't do the customer half — they freeze on a mock discovery call. This is the edge that hands you the offer at otherwise-equal candidates.",
+    aiPrompts: [
+      "Help me draft a STAR story about [recent project]. Then attack it as a tough Sierra FDE interviewer — find the holes.",
+      "Quiz me on the 16 Amazon Leadership Principles. After each, ask me for a STAR story I'd use, then tell me if it actually fits the LP or not.",
+      "Role-play a 5-minute discovery call. You're a non-technical ops manager at a mid-sized insurance company. I'm the FDE. Be skeptical of AI hype.",
+    ],
   },
   {
     id: "stage-6",
@@ -231,6 +261,12 @@ const STAGES = [
     mvp: "AWS Cloud Practitioner only ($100). Skip SAA if time pressured — Cloud Practitioner alone is still a credential.",
     done: "Pass Cloud Practitioner (target end of August). Pass SAA (target end of September). Both visible on LinkedIn before applications peak.",
     deliverable: "End of Stage 6: AWS CCP badge added to LinkedIn. SAA if time allows.",
+    whyThisMatters: "AWS cert isn't because cloud is the job — it's a credibility shortcut. Recruiters skim LinkedIn for 'AWS Cloud Practitioner' as a filter. $100, ~4 weeks, and you're past the algorithmic gate.",
+    aiPrompts: [
+      "Quiz me on AWS Cloud Practitioner: 5 questions across compute, storage, networking, IAM, and pricing. Then explain my wrong answers in plain English.",
+      "Walk me through the 6 pillars of the Well-Architected Framework using a real example: a small SaaS app on AWS. Then ask me where it's weakest.",
+      "I have $100 budget for the CCP exam and 4 weeks. Build me a study plan with daily checkpoints. Skip anything that won't be on the exam.",
+    ],
   },
   {
     id: "stage-7",
@@ -255,6 +291,12 @@ const STAGES = [
     mvp: "Daily InterviewQuery for 30 days, 3 mocks (not 10), STAR stories memorized. Skip company-specific deep prep.",
     done: "10+ full mocks. 3 case studies practiced. Comfortable negotiating one offer.",
     deliverable: "October 31: ready to interview. Daily reps, 10 mocks, 3 case studies, scripts memorized.",
+    whyThisMatters: "October is the month. Daily reps under pressure beat unstructured study by 5x. This is the stage where the work you've done in 1-6 either lands an offer or stays a hobby.",
+    aiPrompts: [
+      "Mock interview me as a Sierra FDE recruiter for 10 minutes — mix of technical, behavioral, and customer scenarios. Be tough. Then give me feedback on where I lost points.",
+      "I have an offer at $X. Help me negotiate. Role-play the recruiter's pushback, then critique my responses. Don't soften it.",
+      "Quiz me on Amazon Leadership Principles for 15 minutes. Force me to use a different STAR story for each LP. Catch repetition.",
+    ],
   },
 ];
 
@@ -508,6 +550,7 @@ function createInitialState() {
     trackChangeLog: [],
     streak: {
       count: 0,
+      longest: 0,
       lastCheckinISO: null,
       monthKey: monthKey(todayISO()),
       graceUsedThisMonth: 0,
@@ -609,15 +652,40 @@ function computeCalendar(state) {
   return { start, layout, bufferStart, bufferEnd, peak: APPLICATION_PEAK_DATE };
 }
 
-function getCurrentStageId(state) {
+function getCalendarStageId(state) {
   const cal = computeCalendar(state);
   const today = todayISO();
   for (const row of cal.layout) {
     if (row.startISO <= today && today < row.endISO) return row.stageId;
   }
-  // Before start — Stage 1; after last — Stage 7
   if (today < cal.layout[0].startISO) return STAGES[0].id;
   return STAGES[STAGES.length - 1].id;
+}
+
+// The stage the user is actually focused on right now: explicit focusStageId override (set when MVP shipped),
+// otherwise the calendar position.
+function getCurrentStageId(state) {
+  if (state.focusStageId) {
+    const stage = STAGES.find((s) => s.id === state.focusStageId);
+    // if focus stage is shipped, fall through to next unshipped
+    if (stage && !state.stages?.[stage.id]?.mvpShipped) return stage.id;
+  }
+  // pick first un-MVP-shipped stage at or after the calendar position
+  const calId = getCalendarStageId(state);
+  const calIdx = STAGES.findIndex((s) => s.id === calId);
+  for (let i = calIdx; i < STAGES.length; i++) {
+    if (!state.stages?.[STAGES[i].id]?.mvpShipped) return STAGES[i].id;
+  }
+  return STAGES[STAGES.length - 1].id;
+}
+
+function nextUnshippedStageId(state, justShippedId) {
+  const idx = STAGES.findIndex((s) => s.id === justShippedId);
+  for (let i = idx + 1; i < STAGES.length; i++) {
+    if (!state.stages?.[STAGES[i].id]?.mvpShipped) return STAGES[i].id;
+  }
+  // wrap: nothing later unshipped, leave focus null
+  return null;
 }
 
 // ---------- App ----------
@@ -655,9 +723,10 @@ export default function App() {
       if (!last || diffDays(last, now) >= 1) {
         count = count + 1;
       }
+      const longest = Math.max(prev.streak.longest || 0, count);
       return {
         ...prev,
-        streak: { ...prev.streak, lastCheckinISO: now, count },
+        streak: { ...prev.streak, lastCheckinISO: now, count, longest },
       };
     });
   }
@@ -684,12 +753,28 @@ export default function App() {
   function shipMVP(stageId) {
     setState((prev) => ({
       ...prev,
-      stages: { ...prev.stages, [stageId]: { ...(prev.stages[stageId] || {}), mvpShipped: true } },
+      stages: {
+        ...prev.stages,
+        [stageId]: { ...(prev.stages[stageId] || {}), mvpShipped: true, mvpShippedAt: Date.now() },
+      },
+      focusStageId: nextUnshippedStageId(prev, stageId),
       artifacts: [
         { id: `${stageId}-mvp-${Date.now()}`, kind: "code_commit", dateISO: todayISO(), description: `Shipped MVP for ${STAGES.find((s) => s.id === stageId)?.title}` },
         ...prev.artifacts,
       ],
     }));
+  }
+
+  function unshipMVP(stageId) {
+    setState((prev) => {
+      const next = { ...prev.stages };
+      if (next[stageId]) {
+        next[stageId] = { ...next[stageId], mvpShipped: false, mvpShippedAt: null };
+      }
+      // remove the auto-logged artifact for this stage's MVP
+      const filtered = prev.artifacts.filter((a) => !a.id.startsWith(`${stageId}-mvp-`));
+      return { ...prev, stages: next, focusStageId: stageId, artifacts: filtered };
+    });
   }
 
   function setApplicationStatus(progId, status) {
@@ -726,7 +811,11 @@ export default function App() {
   }
 
   function shiftCalendar(days) {
-    setState((prev) => ({ ...prev, calendarShiftDays: (prev.calendarShiftDays || 0) + days }));
+    setState((prev) => ({ ...prev, calendarShiftDays: Math.max(0, (prev.calendarShiftDays || 0) + days) }));
+  }
+
+  function resetCalendarShift() {
+    setState((prev) => ({ ...prev, calendarShiftDays: 0 }));
   }
 
   function changeTrack(newTrack, reasoning) {
@@ -758,7 +847,9 @@ export default function App() {
             onSetMode={setAnchorMode}
             onToggleCheck={toggleAnchorCheck}
             onShipMVP={shipMVP}
+            onUnshipMVP={unshipMVP}
             onShiftCalendar={shiftCalendar}
+            onResetCalendarShift={resetCalendarShift}
           />
         )}
         {tab === "map" && (
@@ -769,6 +860,7 @@ export default function App() {
             selectedStageId={selectedStageId || currentStageId}
             onPick={setSelectedStageId}
             onShipMVP={shipMVP}
+            onUnshipMVP={unshipMVP}
           />
         )}
         {tab === "career" && (
@@ -812,10 +904,60 @@ export default function App() {
 
 // ---------- Layout ----------
 
+function BambooSprig({ className = "" }) {
+  // a single, calm bamboo branch — drawn as inline SVG so it inherits theme
+  return (
+    <svg viewBox="0 0 80 120" fill="none" className={className} aria-hidden="true">
+      {/* main stem */}
+      <path d="M50 118 Q44 90 48 60 Q52 32 42 8" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      {/* node rings */}
+      <path d="M46 90 Q49 88 52 90" stroke="currentColor" strokeWidth="1" fill="none" />
+      <path d="M46 60 Q49 58 52 60" stroke="currentColor" strokeWidth="1" fill="none" />
+      <path d="M44 32 Q47 30 50 32" stroke="currentColor" strokeWidth="1" fill="none" />
+      {/* leaves */}
+      <path d="M48 80 Q60 76 70 70 Q64 80 50 84 Z" fill="currentColor" opacity="0.55" />
+      <path d="M50 50 Q62 44 72 40 Q66 52 52 54 Z" fill="currentColor" opacity="0.45" />
+      <path d="M46 24 Q34 18 22 14 Q30 26 44 28 Z" fill="currentColor" opacity="0.55" />
+      <path d="M44 8 Q36 2 28 0 Q34 8 42 12 Z" fill="currentColor" opacity="0.4" />
+    </svg>
+  );
+}
+
+function PineSprig({ className = "" }) {
+  // single pine branch — angled
+  return (
+    <svg viewBox="0 0 120 80" fill="none" className={className} aria-hidden="true">
+      <path d="M2 40 Q60 38 118 30" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      {[10, 24, 38, 52, 66, 80, 94].map((x) => (
+        <g key={x}>
+          <path d={`M${x} 40 L${x - 4} 30 M${x} 40 L${x - 6} 32 M${x} 40 L${x - 5} 34`} stroke="currentColor" strokeWidth="1" />
+          <path d={`M${x} 40 L${x + 4} 50 M${x} 40 L${x + 6} 48 M${x} 40 L${x + 5} 46`} stroke="currentColor" strokeWidth="1" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function InkBlob({ className = "" }) {
+  return (
+    <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
+      <defs>
+        <radialGradient id="blob" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.18" />
+          <stop offset="60%" stopColor="currentColor" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="100" cy="100" rx="95" ry="80" fill="url(#blob)" />
+    </svg>
+  );
+}
+
 function Header({ trackInfo, streak }) {
   const graceLeft = 2 - streak.graceUsedThisMonth;
   return (
-    <header className="mx-auto max-w-5xl px-4 pb-4 pt-8">
+    <header className="relative mx-auto max-w-5xl px-4 pb-4 pt-8">
+      <PineSprig className="pointer-events-none absolute right-2 top-2 hidden h-12 w-24 text-sage opacity-40 drift sm:block" />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <div className="eyebrow">{formatLong(todayISO())} · No. {String(diffDays(CALENDAR_START_DATE, todayISO()) + 1).padStart(3, "0")}</div>
@@ -888,7 +1030,7 @@ function SectionCard({ title, emphasis = false, children, footerNote, dark = fal
 
 // ---------- Today screen ----------
 
-function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onShiftCalendar }) {
+function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift }) {
   const checks = state.today.checks;
   const mode = state.today.anchorMode;
   const anchorComplete =
@@ -899,11 +1041,38 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
   const checkedInToday = lastCheckin === todayISO();
   const daysToPeak = daysUntil(APPLICATION_PEAK_DATE);
 
+  // Find most recently shipped MVP (within 24h) for undo banner
+  const recentShip = useMemo(() => {
+    const entries = Object.entries(state.stages || {})
+      .filter(([, v]) => v?.mvpShipped && v?.mvpShippedAt && Date.now() - v.mvpShippedAt < 24 * 60 * 60 * 1000)
+      .sort((a, b) => b[1].mvpShippedAt - a[1].mvpShippedAt);
+    if (!entries.length) return null;
+    const [stageId] = entries[0];
+    return STAGES.find((s) => s.id === stageId);
+  }, [state.stages]);
+
   return (
     <div className="space-y-5 fade-up">
       <CountdownStrip days={daysToPeak} targetISO={APPLICATION_PEAK_DATE} />
 
       <TrackLockBanner state={state} isTrackLocked={isTrackLocked} onOpen={onOpenTrack} />
+
+      {recentShip && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border-l-4 border-sage bg-sage/10 px-4 py-2.5 text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={14} className="text-sage" />
+            <span className="text-stone-800">
+              MVP shipped: <span className="font-medium">{recentShip.title}</span>. Focus moved to the next stage.
+            </span>
+          </div>
+          <button
+            onClick={() => onUnshipMVP(recentShip.id)}
+            className="inline-flex items-center gap-1 rounded-full border border-rule bg-paper px-2.5 py-0.5 text-xs hover:border-stone-500"
+          >
+            <Undo2 size={11} /> Undo (24h)
+          </button>
+        </div>
+      )}
 
       <DailyCard
         state={state}
@@ -918,7 +1087,9 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
         onCheckIn={onCheckIn}
       />
 
-      <CurrentStagePanel state={state} stage={currentStage} calendar={calendar} onShipMVP={onShipMVP} onShiftCalendar={onShiftCalendar} />
+      <CurrentStagePanel state={state} stage={currentStage} calendar={calendar} onShipMVP={onShipMVP} onUnshipMVP={onUnshipMVP} onShiftCalendar={onShiftCalendar} onResetCalendarShift={onResetCalendarShift} />
+
+      <AskClaudeCard stage={currentStage} />
 
       <SprintTargetsRow />
 
@@ -971,29 +1142,47 @@ function DailyCard({ state, mode, checks, anchorComplete, checkedInToday, lastCh
   return (
     <section className="overflow-hidden rounded-2xl border border-rule bg-paper shadow-sm">
       <div className="grid grid-cols-1 md:grid-cols-[auto_1fr]">
-        <div className="border-b border-rule bg-paper-dark/60 px-5 py-5 md:border-b-0 md:border-r md:px-7">
+        <div className="relative overflow-hidden border-b border-rule bg-paper-warm/60 px-5 py-5 md:border-b-0 md:border-r md:px-7">
+          {/* decorative bamboo sprig */}
+          <BambooSprig className="pointer-events-none absolute -bottom-1 -right-2 h-24 w-16 opacity-25 drift-slow" />
+
           <div className="eyebrow">Today · streak</div>
-          <div className="mt-2 flex items-baseline gap-1.5">
+          <div className="ink-wash mt-2 flex items-baseline gap-1.5">
             <span className="tabular font-serif text-6xl font-medium leading-none text-ink">{state.streak.count}</span>
             <span className="text-sm text-stone-500">day{state.streak.count === 1 ? "" : "s"}</span>
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs">
-            <Flame size={11} className="text-amber-700" />
-            <span className="tabular text-stone-600">{graceLeft}/2 grace left</span>
+          <div className="mt-2 flex flex-col gap-1 text-xs">
+            <div className="flex items-center gap-1.5">
+              <Flame size={11} className="text-clay" />
+              <span className="tabular text-stone-600">{graceLeft}/2 grace this month</span>
+            </div>
+            {(state.streak.longest || 0) > 0 && (
+              <div className="text-[10px] text-stone-500">
+                Best ever: <span className="tabular">{state.streak.longest}</span>{" "}
+                {state.streak.count < state.streak.longest && <span className="italic">— you've done this before.</span>}
+              </div>
+            )}
           </div>
+          {state.streak.count === 0 && (
+            <p className="mt-3 font-hanji text-xs leading-relaxed text-stone-600">
+              {state.streak.longest > 0
+                ? "You broke a streak. Doesn't erase the work. Today's small thing still counts."
+                : "First day is the heaviest. Ship a 5-min MVD if today is hard."}
+            </p>
+          )}
           <div className="mt-4">
             <button
               onClick={onCheckIn}
               disabled={!anchorComplete || checkedInToday}
               className={`w-full rounded-full border px-3 py-1.5 text-xs transition ${
                 checkedInToday
-                  ? "border-sage bg-sage/10 text-sage"
+                  ? "border-sage bg-sage/15 text-sage ping-soft"
                   : anchorComplete
                     ? "border-ink bg-ink text-paper hover:bg-stone-800"
                     : "cursor-not-allowed border-rule bg-paper-dark/40 text-stone-400"
               }`}
             >
-              {checkedInToday ? "Checked in today ✓" : anchorComplete ? "Check in" : "Finish anchor below"}
+              {checkedInToday ? "Checked in today ✓" : anchorComplete ? "Check in" : "Finish today's anchor →"}
             </button>
           </div>
           {lastCheckin && lastCheckin !== todayISO() && (
@@ -1110,9 +1299,11 @@ function CheckRow({ checked, onChange, label, hint }) {
   );
 }
 
-function CurrentStagePanel({ state, stage, calendar, onShipMVP, onShiftCalendar }) {
+function CurrentStagePanel({ state, stage, calendar, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift }) {
   const stageState = state.stages[stage.id] || {};
   const row = calendar.layout.find((r) => r.stageId === stage.id);
+  const shippedRecently = stageState.mvpShipped && stageState.mvpShippedAt && Date.now() - stageState.mvpShippedAt < 24 * 60 * 60 * 1000;
+  const shift = state.calendarShiftDays || 0;
   return (
     <SectionCard
       title={
@@ -1120,53 +1311,120 @@ function CurrentStagePanel({ state, stage, calendar, onShipMVP, onShiftCalendar 
           <MapIcon size={18} /> Stage {stage.order}: {stage.title}
         </span>
       }
-      footerNote={row ? `Floating window: ${formatShort(row.startISO)} → ${formatShort(row.endISO)}` : null}
+      footerNote={row ? `Floating window: ${formatLong(row.startISO)} → ${formatLong(row.endISO)}` : null}
     >
       <p className="text-sm text-stone-700">{stage.weeks}</p>
       <div className="mt-1 flex flex-wrap gap-1">
         {stage.tags.map((t) => (
-          <span key={t} className="rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[10px] uppercase tracking-widest text-stone-500">
+          <span key={t} className="rounded-full border border-rule bg-paper-warm px-2 py-0.5 text-[10px] uppercase tracking-widest text-stone-500">
             {t}
           </span>
         ))}
       </div>
 
-      <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-stone-500">
+      {stage.whyThisMatters && (
+        <div className="mt-3 rounded-lg border-l-2 border-celadon bg-paper-warm/60 px-3 py-2.5">
+          <div className="eyebrow">Why this matters for FDE/SE</div>
+          <p className="mt-1 font-hanji text-[15px] leading-relaxed text-ink">{stage.whyThisMatters}</p>
+        </div>
+      )}
+
+      <div className="mt-3 rounded-lg border border-rule bg-paper-warm/60 p-3">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-clay">
           <AlertTriangle size={12} /> MVP — what to ship if you run out of time
         </div>
         <p className="mt-1 text-sm text-stone-800">{stage.mvp}</p>
         {stageState.mvpShipped ? (
-          <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-400 bg-emerald-50 px-2.5 py-0.5 text-xs text-emerald-800">
-            <CheckCircle2 size={12} /> MVP shipped
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1 rounded-full border border-sage bg-sage/15 px-2.5 py-0.5 text-xs text-sage">
+              <CheckCircle2 size={12} /> MVP shipped
+            </div>
+            {shippedRecently && (
+              <button
+                onClick={() => onUnshipMVP(stage.id)}
+                className="inline-flex items-center gap-1 rounded-full border border-rule bg-paper px-2.5 py-0.5 text-xs text-stone-600 hover:border-stone-500"
+                title="Undo within 24 hours of shipping"
+              >
+                <Undo2 size={11} /> Undo MVP
+              </button>
+            )}
           </div>
         ) : (
           <button
             onClick={() => onShipMVP(stage.id)}
-            className="mt-2 rounded-full border border-stone-800 bg-stone-900 px-3 py-1 text-xs text-stone-50 hover:bg-stone-700"
+            className="mt-2 rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper hover:bg-stone-700"
           >
             Ship MVP — skip the remaining 70%
           </button>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-stone-500">
-        <span>Missed yesterday?</span>
-        <button onClick={() => onShiftCalendar(1)} className="rounded border border-stone-200 bg-white px-2 py-0.5 hover:border-stone-400">
-          Shift calendar +1 day
+      {onShiftCalendar && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+          <span>Missed days?</span>
+          <button onClick={() => onShiftCalendar(1)} className="rounded border border-rule bg-paper px-2 py-0.5 hover:border-stone-400">+1</button>
+          <button onClick={() => onShiftCalendar(3)} className="rounded border border-rule bg-paper px-2 py-0.5 hover:border-stone-400">+3 days</button>
+          <button onClick={() => onShiftCalendar(-1)} disabled={shift === 0} className="rounded border border-rule bg-paper px-2 py-0.5 hover:border-stone-400 disabled:opacity-40">−1</button>
+          {shift > 0 && (
+            <button onClick={onResetCalendarShift} className="rounded border border-rule bg-paper px-2 py-0.5 hover:border-stone-400">Reset</button>
+          )}
+          <span className="ml-auto tabular text-stone-400">Total shift: {shift} day{shift === 1 ? "" : "s"}</span>
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+function AskClaudeCard({ stage }) {
+  const [open, setOpen] = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState(null);
+  if (!stage.aiPrompts?.length) return null;
+
+  function copy(text, idx) {
+    navigator.clipboard?.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 1400);
+  }
+
+  return (
+    <SectionCard
+      title={
+        <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center justify-between gap-2 text-left">
+          <span className="flex items-center gap-2">
+            <Sparkles size={16} className="text-clay" />
+            <span>Stuck? Ask Claude</span>
+          </span>
+          <span className="text-xs text-stone-500">{open ? "hide" : "show"} {stage.aiPrompts.length} prompts</span>
         </button>
-        <button onClick={() => onShiftCalendar(3)} className="rounded border border-stone-200 bg-white px-2 py-0.5 hover:border-stone-400">
-          +3 days
-        </button>
-        <span className="ml-auto text-stone-400">Total shift: {state.calendarShiftDays || 0} days</span>
-      </div>
+      }
+      footerNote="Type these into Claude — don't ask Claude to write code for you. The point is to be quizzed, not coddled."
+    >
+      {open &&
+        stage.aiPrompts.map((p, i) => (
+          <div key={i} className="rounded-lg border border-rule bg-paper-warm/40 p-3">
+            <p className="font-hanji text-sm leading-relaxed text-ink">{p}</p>
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={() => copy(p, i)}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] transition ${
+                  copiedIdx === i
+                    ? "border-sage bg-sage/15 text-sage"
+                    : "border-rule bg-paper text-stone-600 hover:border-stone-500"
+                }`}
+              >
+                {copiedIdx === i ? "Copied ✓" : "Copy prompt"}
+              </button>
+            </div>
+          </div>
+        ))}
+      {!open && <p className="text-xs italic text-stone-500">Three pre-written prompts that quiz you instead of doing the work for you.</p>}
     </SectionCard>
   );
 }
 
 // ---------- Quest Map ----------
 
-function QuestMap({ state, calendar, currentStageId, selectedStageId, onPick, onShipMVP }) {
+function QuestMap({ state, calendar, currentStageId, selectedStageId, onPick, onShipMVP, onUnshipMVP }) {
   const selected = STAGES.find((s) => s.id === selectedStageId);
   const trackInfo = TRACKS[state.track];
   const trackTagFilter = state.track === "fde-se" ? ["FDE", "SE"] : ["BIE"];
@@ -1228,7 +1486,8 @@ function QuestMap({ state, calendar, currentStageId, selectedStageId, onPick, on
         </ol>
       </SectionCard>
 
-      <StageDetail stage={selected} state={state} onShipMVP={onShipMVP} />
+      <StageDetail stage={selected} state={state} onShipMVP={onShipMVP} onUnshipMVP={onUnshipMVP} />
+      <AskClaudeCard stage={selected} />
     </div>
   );
 }
@@ -1316,8 +1575,9 @@ function FloatingCalendar({ calendar, state, currentStageId }) {
   );
 }
 
-function StageDetail({ stage, state, onShipMVP }) {
+function StageDetail({ stage, state, onShipMVP, onUnshipMVP }) {
   const stageState = state.stages[stage.id] || {};
+  const shippedRecently = stageState.mvpShipped && stageState.mvpShippedAt && Date.now() - stageState.mvpShippedAt < 24 * 60 * 60 * 1000;
   return (
     <SectionCard
       title={
@@ -1335,19 +1595,36 @@ function StageDetail({ stage, state, onShipMVP }) {
         ))}
       </div>
 
-      <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-amber-800">
+      {stage.whyThisMatters && (
+        <div className="rounded-lg border-l-2 border-celadon bg-paper-warm/50 px-3 py-2.5">
+          <div className="eyebrow">Why this matters for FDE/SE</div>
+          <p className="mt-1 font-hanji text-[15px] leading-relaxed text-ink">{stage.whyThisMatters}</p>
+        </div>
+      )}
+
+      <div className="rounded-lg border border-rule bg-paper-warm/50 p-3">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-clay">
           <AlertTriangle size={12} /> MVP — ship if August arrives mid-stage
         </div>
         <p className="mt-1 text-sm text-stone-800">{stage.mvp}</p>
         {stageState.mvpShipped ? (
-          <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-400 bg-emerald-50 px-2.5 py-0.5 text-xs text-emerald-800">
-            <CheckCircle2 size={12} /> MVP shipped
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1 rounded-full border border-sage bg-sage/15 px-2.5 py-0.5 text-xs text-sage">
+              <CheckCircle2 size={12} /> MVP shipped
+            </div>
+            {shippedRecently && onUnshipMVP && (
+              <button
+                onClick={() => onUnshipMVP(stage.id)}
+                className="inline-flex items-center gap-1 rounded-full border border-rule bg-paper px-2.5 py-0.5 text-xs text-stone-600 hover:border-stone-500"
+              >
+                <Undo2 size={11} /> Undo (24h grace)
+              </button>
+            )}
           </div>
         ) : (
           <button
             onClick={() => onShipMVP(stage.id)}
-            className="mt-2 rounded-full border border-stone-800 bg-stone-900 px-3 py-1 text-xs text-stone-50 hover:bg-stone-700"
+            className="mt-2 rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper hover:bg-stone-700"
           >
             Ship MVP
           </button>
@@ -1817,19 +2094,21 @@ function FuturePivots() {
 function TrackChangeModal({ state, onClose, onConfirm }) {
   const [reasoning, setReasoning] = useState("");
   const [target, setTarget] = useState(state.track === "fde-se" ? "bie" : "fde-se");
-  const valid = reasoning.trim().length >= 200;
+  const trimmedLen = reasoning.trim().length;
+  const valid = trimmedLen >= 200;
+  const pct = Math.min(100, (trimmedLen / 200) * 100);
   return (
     <ModalShell onClose={onClose} title="Re-evaluate track">
       <p className="text-sm text-stone-600">
         Locked on <strong>{TRACKS[state.track].short}</strong>. To change, write 200+ characters explaining what changed since you committed.
       </p>
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {Object.values(TRACKS).map((t) => (
           <button
             key={t.id}
             onClick={() => setTarget(t.id)}
-            className={`flex-1 rounded-lg border p-3 text-left text-sm transition ${
-              target === t.id ? "border-stone-800 bg-stone-900 text-stone-50" : "border-stone-200 bg-white text-stone-700 hover:border-stone-400"
+            className={`rounded-lg border p-3 text-left text-sm transition ${
+              target === t.id ? "border-ink bg-ink text-paper" : "border-rule bg-paper text-stone-700 hover:border-stone-500"
             }`}
           >
             <div className="font-medium">{t.title}</div>
@@ -1842,22 +2121,37 @@ function TrackChangeModal({ state, onClose, onConfirm }) {
         onChange={(e) => setReasoning(e.target.value)}
         rows={6}
         placeholder="What changed? What new evidence? What did you ship that pulls you in this direction?"
-        className="mt-3 w-full rounded border border-stone-200 bg-stone-50 p-2 text-sm focus:border-stone-400 focus:outline-none"
+        className="mt-3 w-full rounded border border-rule bg-paper-warm/40 p-3 text-sm leading-relaxed focus:border-stone-500 focus:outline-none"
       />
-      <div className="mt-2 flex items-center justify-between text-xs text-stone-500">
-        <span>{reasoning.length}/200 characters</span>
-        <div className="flex gap-2">
-          <button onClick={onClose} className="rounded border border-stone-200 bg-white px-3 py-1">
-            Cancel
-          </button>
-          <button
-            onClick={() => valid && onConfirm(target, reasoning)}
-            disabled={!valid}
-            className={`rounded border px-3 py-1 ${valid ? "border-stone-800 bg-stone-900 text-stone-50" : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"}`}
-          >
-            Confirm change
-          </button>
+      <div className="mt-2 space-y-1">
+        <div className="flex items-baseline justify-between text-xs text-stone-500">
+          <span className={valid ? "font-medium text-sage" : ""}>
+            <span className="tabular">{trimmedLen}</span> / 200 characters {valid && "· ready"}
+          </span>
+          <span className="text-stone-400">{200 - trimmedLen > 0 ? `${200 - trimmedLen} to go` : "—"}</span>
         </div>
+        <div className="h-1 w-full rounded bg-rule">
+          <div
+            className={`h-1 rounded transition-all ${valid ? "bg-sage" : "bg-clay-soft"}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-end gap-2 text-xs">
+        <button onClick={onClose} className="rounded border border-rule bg-paper px-3 py-1.5 hover:border-stone-500">
+          Cancel
+        </button>
+        <button
+          onClick={() => valid && onConfirm(target, reasoning)}
+          disabled={!valid}
+          className={`rounded border px-3 py-1.5 transition ${
+            valid
+              ? "border-ink bg-ink text-paper hover:bg-stone-700"
+              : "cursor-not-allowed border-rule bg-paper-dark/60 text-stone-400"
+          }`}
+        >
+          Confirm change to {TRACKS[target].short}
+        </button>
       </div>
     </ModalShell>
   );
