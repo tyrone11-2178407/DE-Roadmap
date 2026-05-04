@@ -566,7 +566,40 @@ function createInitialState() {
     applications: {},
     artifacts: [],
     gapRadar: {},
+    lessons: [],
+    lessonsMondayPromptISO: null,
   };
+}
+
+const LESSON_CATEGORIES = [
+  { id: "concept_gap", label: "Concept gap", short: "concept" },
+  { id: "application_error", label: "Application error", short: "application" },
+  { id: "recurring_pattern", label: "Recurring pattern", short: "recurring" },
+];
+const LESSONS_MAX = 500;
+const REVIEW_STALE_DAYS = 7;
+
+function lessonCategoryLabel(id) {
+  return LESSON_CATEGORIES.find((c) => c.id === id)?.label || id;
+}
+
+function isStaleReview(lesson) {
+  if (!lesson.last_reviewed) return false;
+  const last = lesson.last_reviewed.slice(0, 10);
+  return diffDays(last, todayISO()) > REVIEW_STALE_DAYS;
+}
+
+function isReviewQueueItem(lesson) {
+  return !lesson.reviewed || isStaleReview(lesson);
+}
+
+function isMondayISO(iso) {
+  return new Date(iso + "T00:00:00").getDay() === 1;
+}
+
+function uuid() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return `lsn-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function loadState() {
@@ -696,6 +729,9 @@ export default function App() {
   const [trackModalOpen, setTrackModalOpen] = useState(false);
   const [switchingCostOpen, setSwitchingCostOpen] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState(null);
+  const [lessonModalOpen, setLessonModalOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [reviewQueueIds, setReviewQueueIds] = useState(null); // null = closed; [] = empty done; array of ids active
 
   useEffect(() => {
     setState((prev) => rolloverIfNeeded(prev));
@@ -818,6 +854,77 @@ export default function App() {
     setState((prev) => ({ ...prev, calendarShiftDays: 0 }));
   }
 
+  function addLesson(entry) {
+    setState((prev) => {
+      const lessons = [
+        {
+          id: uuid(),
+          date: new Date().toISOString(),
+          source: entry.source.trim(),
+          category: entry.category,
+          tag: entry.tag.trim(),
+          what_i_tried: entry.what_i_tried.trim(),
+          what_was_correct: entry.what_was_correct.trim(),
+          why_i_missed: entry.why_i_missed.trim(),
+          reviewed: false,
+          review_count: 0,
+          last_reviewed: null,
+        },
+        ...prev.lessons,
+      ];
+      return { ...prev, lessons };
+    });
+  }
+
+  function updateLesson(id, patch) {
+    setState((prev) => ({
+      ...prev,
+      lessons: prev.lessons.map((l) => (l.id === id ? { ...l, ...patch } : l)),
+    }));
+  }
+
+  function deleteLesson(id) {
+    setState((prev) => ({ ...prev, lessons: prev.lessons.filter((l) => l.id !== id) }));
+  }
+
+  function markLessonReviewed(id) {
+    const nowISO = new Date().toISOString();
+    setState((prev) => ({
+      ...prev,
+      lessons: prev.lessons.map((l) =>
+        l.id === id
+          ? {
+              ...l,
+              reviewed: true,
+              review_count: (l.review_count || 0) + 1,
+              last_reviewed: nowISO,
+            }
+          : l,
+      ),
+    }));
+  }
+
+  function reLogLesson(id, restatement) {
+    const nowISO = new Date().toISOString();
+    setState((prev) => ({
+      ...prev,
+      lessons: prev.lessons.map((l) =>
+        l.id === id
+          ? {
+              ...l,
+              reviewed: false,
+              what_i_tried: restatement?.trim() ? restatement.trim() : l.what_i_tried,
+              last_reviewed: nowISO,
+            }
+          : l,
+      ),
+    }));
+  }
+
+  function dismissMondayPrompt() {
+    setState((prev) => ({ ...prev, lessonsMondayPromptISO: todayISO() }));
+  }
+
   function changeTrack(newTrack, reasoning) {
     setState((prev) => ({
       ...prev,
@@ -850,6 +957,17 @@ export default function App() {
             onUnshipMVP={unshipMVP}
             onShiftCalendar={shiftCalendar}
             onResetCalendarShift={resetCalendarShift}
+            onOpenLessonModal={() => {
+              setEditingLesson(null);
+              setLessonModalOpen(true);
+            }}
+            onStartMondayReview={() => {
+              const candidates = state.lessons.filter(isReviewQueueItem);
+              const shuffled = [...candidates].sort(() => Math.random() - 0.5).slice(0, 3);
+              setReviewQueueIds(shuffled.map((l) => l.id));
+              dismissMondayPrompt();
+            }}
+            onDismissMondayPrompt={dismissMondayPrompt}
           />
         )}
         {tab === "map" && (
@@ -870,6 +988,16 @@ export default function App() {
             onAddArtifact={addArtifact}
             onRemoveArtifact={removeArtifact}
             onSetGate={setGate}
+            onOpenLessonModal={() => {
+              setEditingLesson(null);
+              setLessonModalOpen(true);
+            }}
+            onEditLesson={(lesson) => {
+              setEditingLesson(lesson);
+              setLessonModalOpen(true);
+            }}
+            onDeleteLesson={deleteLesson}
+            onStartReview={(ids) => setReviewQueueIds(ids)}
           />
         )}
         {tab === "resources" && <Resources currentStageId={currentStageId} />}
@@ -898,6 +1026,48 @@ export default function App() {
           }}
         />
       )}
+
+      {lessonModalOpen && (
+        <LessonModal
+          existingLesson={editingLesson}
+          existingTags={[...new Set(state.lessons.map((l) => l.tag).filter(Boolean))]}
+          atCapacity={state.lessons.length >= LESSONS_MAX}
+          onClose={() => {
+            setLessonModalOpen(false);
+            setEditingLesson(null);
+          }}
+          onSave={(entry) => {
+            if (editingLesson) {
+              updateLesson(editingLesson.id, entry);
+            } else {
+              addLesson(entry);
+            }
+            setLessonModalOpen(false);
+            setEditingLesson(null);
+          }}
+        />
+      )}
+
+      {reviewQueueIds && reviewQueueIds.length > 0 && (() => {
+        const queue = reviewQueueIds
+          .map((id) => state.lessons.find((l) => l.id === id))
+          .filter(Boolean);
+        return (
+          <LessonReviewModal
+            key={queue[0]?.id || "empty"}
+            lessons={queue}
+            onClose={() => setReviewQueueIds(null)}
+            onMarkReviewed={(id) => {
+              markLessonReviewed(id);
+              setReviewQueueIds((q) => (q ? q.filter((qid) => qid !== id) : q));
+            }}
+            onReLog={(id, restatement) => {
+              reLogLesson(id, restatement);
+              setReviewQueueIds((q) => (q ? q.filter((qid) => qid !== id) : q));
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -1030,7 +1200,7 @@ function SectionCard({ title, emphasis = false, children, footerNote, dark = fal
 
 // ---------- Today screen ----------
 
-function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift }) {
+function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift, onOpenLessonModal, onStartMondayReview, onDismissMondayPrompt }) {
   const checks = state.today.checks;
   const mode = state.today.anchorMode;
   const anchorComplete =
@@ -1051,11 +1221,37 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
     return STAGES.find((s) => s.id === stageId);
   }, [state.stages]);
 
+  const today = todayISO();
+  const lessonsCount = state.lessons.length;
+  const reviewedCount = state.lessons.filter((l) => l.reviewed).length;
+  const reviewQueueCount = state.lessons.filter(isReviewQueueItem).length;
+  const topWeakSpot = useMemo(() => {
+    const counts = {};
+    state.lessons.forEach((l) => {
+      if (l.reviewed) return;
+      counts[l.tag] = (counts[l.tag] || 0) + 1;
+    });
+    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    return top ? top[0] : null;
+  }, [state.lessons]);
+  const showMondayPrompt =
+    isMondayISO(today) &&
+    state.lessonsMondayPromptISO !== today &&
+    reviewQueueCount > 0;
+
   return (
     <div className="space-y-5 fade-up">
       <CountdownStrip days={daysToPeak} targetISO={APPLICATION_PEAK_DATE} />
 
       <TrackLockBanner state={state} isTrackLocked={isTrackLocked} onOpen={onOpenTrack} />
+
+      {showMondayPrompt && (
+        <MondayReviewBanner
+          unreviewedCount={reviewQueueCount}
+          onReview={onStartMondayReview}
+          onSkip={onDismissMondayPrompt}
+        />
+      )}
 
       {recentShip && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border-l-4 border-sage bg-sage/10 px-4 py-2.5 text-sm">
@@ -1087,6 +1283,13 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
         onCheckIn={onCheckIn}
       />
 
+      <LogLessonRow
+        onOpen={onOpenLessonModal}
+        lessonsCount={lessonsCount}
+        reviewedCount={reviewedCount}
+        topWeakSpot={topWeakSpot}
+      />
+
       <CurrentStagePanel state={state} stage={currentStage} calendar={calendar} onShipMVP={onShipMVP} onUnshipMVP={onUnshipMVP} onShiftCalendar={onShiftCalendar} onResetCalendarShift={onResetCalendarShift} />
 
       <AskClaudeCard stage={currentStage} />
@@ -1100,6 +1303,60 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
         </p>
       </SectionCard>
     </div>
+  );
+}
+
+function LogLessonRow({ onOpen, lessonsCount, reviewedCount, topWeakSpot }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rule bg-paper-warm/40 px-4 py-2.5">
+      <button
+        onClick={onOpen}
+        className="inline-flex items-center gap-1.5 rounded-full border border-ink bg-paper px-3 py-1 text-xs font-medium text-ink hover:bg-stone-100"
+      >
+        <BookOpen size={12} /> Log a Lesson
+      </button>
+      <div className="text-[11px] tabular text-stone-500">
+        Lessons logged: <span className="font-medium text-stone-700">{lessonsCount}</span>
+        <span className="mx-1.5 text-stone-300">·</span>
+        Reviewed: <span className="font-medium text-stone-700">{reviewedCount}</span>
+        {topWeakSpot && (
+          <>
+            <span className="mx-1.5 text-stone-300">·</span>
+            Top weak spot: <span className="font-medium text-clay">{topWeakSpot}</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MondayReviewBanner({ unreviewedCount, onReview, onSkip }) {
+  return (
+    <section className="flex flex-wrap items-start justify-between gap-3 rounded-lg border-l-4 border-celadon bg-celadon/10 px-4 py-3">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 text-sm font-medium text-ink">
+          <BookOpen size={13} className="text-celadon" />
+          You have {unreviewedCount} unreviewed lesson{unreviewedCount === 1 ? "" : "s"}.
+        </div>
+        <p className="mt-0.5 text-xs text-stone-600">
+          Review 3 before today's work? Mistakes you don't revisit become a graveyard.
+        </p>
+      </div>
+      <div className="flex shrink-0 gap-2">
+        <button
+          onClick={onReview}
+          className="rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper hover:bg-stone-700"
+        >
+          Review 3 now
+        </button>
+        <button
+          onClick={onSkip}
+          className="rounded-full border border-rule bg-paper px-3 py-1 text-xs text-stone-600 hover:border-stone-500"
+        >
+          Skip this week
+        </button>
+      </div>
+    </section>
   );
 }
 
@@ -1697,12 +1954,409 @@ function StageDetail({ stage, state, onShipMVP, onUnshipMVP }) {
 
 // ---------- Career HQ ----------
 
-function CareerHQ({ state, onSetApplicationStatus, onAddArtifact, onRemoveArtifact, onSetGate }) {
+function CareerHQ({ state, onSetApplicationStatus, onAddArtifact, onRemoveArtifact, onSetGate, onOpenLessonModal, onEditLesson, onDeleteLesson, onStartReview }) {
   return (
     <div className="space-y-6">
       <ApplicationTimeline state={state} onSetStatus={onSetApplicationStatus} />
       <GapRadar state={state} onSetGate={onSetGate} />
+      <LessonsPanel
+        state={state}
+        onOpenLessonModal={onOpenLessonModal}
+        onEditLesson={onEditLesson}
+        onDeleteLesson={onDeleteLesson}
+        onStartReview={onStartReview}
+      />
       <ArtifactWall state={state} onAdd={onAddArtifact} onRemove={onRemoveArtifact} />
+    </div>
+  );
+}
+
+function LessonsPanel({ state, onOpenLessonModal, onEditLesson, onDeleteLesson, onStartReview }) {
+  const [subTab, setSubTab] = useState("all");
+  const lessons = state.lessons;
+  const reviewQueue = lessons.filter(isReviewQueueItem);
+
+  return (
+    <SectionCard
+      title={
+        <span className="flex items-center gap-2">
+          <BookOpen size={18} /> Lessons
+          <span className="ml-1 rounded-full border border-rule bg-paper px-2 py-0.5 text-[10px] tabular text-stone-500">
+            {lessons.length}
+          </span>
+        </span>
+      }
+      footerNote="Mistake logs that nobody reviews become graveyards. Review weekly — or this is decoration."
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex flex-wrap rounded-full border border-rule p-0.5 text-xs">
+          {[
+            { id: "all", label: "All lessons" },
+            { id: "patterns", label: "Patterns" },
+            { id: "review", label: `Review queue${reviewQueue.length ? ` · ${reviewQueue.length}` : ""}` },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setSubTab(t.id)}
+              className={`rounded-full px-3 py-1 transition ${
+                subTab === t.id ? "bg-ink text-paper" : "text-stone-500 hover:text-ink"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={onOpenLessonModal}
+          className="inline-flex items-center gap-1.5 rounded-full border border-ink bg-paper px-3 py-1 text-xs font-medium text-ink hover:bg-stone-100"
+        >
+          <Plus size={12} /> Log a lesson
+        </button>
+      </div>
+
+      {lessons.length === 0 ? (
+        <p className="text-sm italic text-stone-500">
+          No lessons yet. Log mistakes from practice problems as they happen — under 60 seconds, before they fade.
+        </p>
+      ) : (
+        <div className="mt-1">
+          {subTab === "all" && (
+            <LessonsAllTab lessons={lessons} onEdit={onEditLesson} onDelete={onDeleteLesson} />
+          )}
+          {subTab === "patterns" && <LessonsPatternsTab lessons={lessons} />}
+          {subTab === "review" && (
+            <LessonsReviewTab
+              lessons={reviewQueue}
+              allLessons={lessons}
+              onStartReview={onStartReview}
+            />
+          )}
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+function LessonsAllTab({ lessons, onEdit, onDelete }) {
+  const [query, setQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterTag, setFilterTag] = useState("");
+  const [filterReviewed, setFilterReviewed] = useState(""); // "", "yes", "no"
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [expandedId, setExpandedId] = useState(null);
+
+  const allTags = useMemo(
+    () => [...new Set(lessons.map((l) => l.tag).filter(Boolean))].sort(),
+    [lessons],
+  );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return lessons.filter((l) => {
+      if (filterCategory && l.category !== filterCategory) return false;
+      if (filterTag && l.tag !== filterTag) return false;
+      if (filterReviewed === "yes" && !l.reviewed) return false;
+      if (filterReviewed === "no" && l.reviewed) return false;
+      const dateOnly = l.date.slice(0, 10);
+      if (fromDate && dateOnly < fromDate) return false;
+      if (toDate && dateOnly > toDate) return false;
+      if (q) {
+        const hay = [l.source, l.tag, l.what_i_tried, l.what_was_correct, l.why_i_missed]
+          .join(" ")
+          .toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [lessons, query, filterCategory, filterTag, filterReviewed, fromDate, toDate]);
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search…"
+          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none lg:col-span-2"
+        />
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm"
+        >
+          <option value="">All categories</option>
+          {LESSON_CATEGORIES.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterTag}
+          onChange={(e) => setFilterTag(e.target.value)}
+          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm"
+        >
+          <option value="">All tags</option>
+          {allTags.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterReviewed}
+          onChange={(e) => setFilterReviewed(e.target.value)}
+          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm"
+        >
+          <option value="">All statuses</option>
+          <option value="yes">Reviewed</option>
+          <option value="no">Unreviewed</option>
+        </select>
+        <div className="flex gap-1">
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-xs"
+            aria-label="From date"
+          />
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-xs"
+            aria-label="To date"
+          />
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-sm italic text-stone-500">No lessons match these filters.</p>
+      ) : (
+        <ul className="divide-y divide-rule overflow-hidden rounded-lg border border-rule">
+          {filtered.map((l) => {
+            const expanded = expandedId === l.id;
+            return (
+              <li key={l.id} className="bg-paper">
+                <button
+                  onClick={() => setExpandedId(expanded ? null : l.id)}
+                  className="grid w-full grid-cols-12 items-center gap-2 px-3 py-2 text-left text-xs hover:bg-stone-50"
+                >
+                  <span className="col-span-2 tabular text-stone-500">{formatShort(l.date.slice(0, 10))}</span>
+                  <span className="col-span-3 truncate text-stone-800">{l.source}</span>
+                  <span className="col-span-2 truncate text-[10px] uppercase tracking-widest text-stone-500">
+                    {LESSON_CATEGORIES.find((c) => c.id === l.category)?.short || l.category}
+                  </span>
+                  <span className="col-span-2 truncate font-medium text-clay">{l.tag}</span>
+                  <span className="col-span-2 truncate text-stone-600">{l.why_i_missed}</span>
+                  <span className="col-span-1 text-right">
+                    {l.reviewed ? (
+                      <span className="inline-flex items-center gap-0.5 text-[10px] text-sage">
+                        <CheckCircle2 size={10} /> {l.review_count}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-stone-400">—</span>
+                    )}
+                  </span>
+                </button>
+                {expanded && (
+                  <div className="space-y-2 border-t border-rule bg-paper-warm/30 px-3 py-3 text-sm">
+                    <div>
+                      <div className="eyebrow">What I tried</div>
+                      <p className="mt-1 whitespace-pre-wrap text-stone-800">{l.what_i_tried}</p>
+                    </div>
+                    <div>
+                      <div className="eyebrow">What was correct</div>
+                      <p className="mt-1 whitespace-pre-wrap text-stone-800">{l.what_was_correct}</p>
+                    </div>
+                    <div>
+                      <div className="eyebrow">Why I missed</div>
+                      <p className="mt-1 text-stone-800">{l.why_i_missed}</p>
+                    </div>
+                    {l.last_reviewed && (
+                      <p className="text-[10px] text-stone-500">
+                        Last reviewed {formatShort(l.last_reviewed.slice(0, 10))} · {l.review_count} review{l.review_count === 1 ? "" : "s"}
+                      </p>
+                    )}
+                    <div className="flex justify-end gap-2 pt-1">
+                      <button
+                        onClick={() => onEdit(l)}
+                        className="rounded border border-rule bg-paper px-2.5 py-1 text-xs text-stone-700 hover:border-stone-500"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this lesson? This cannot be undone.")) onDelete(l.id);
+                        }}
+                        className="inline-flex items-center gap-1 rounded border border-rule bg-paper px-2.5 py-1 text-xs text-stone-600 hover:border-clay hover:text-clay"
+                      >
+                        <Trash2 size={11} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function LessonsPatternsTab({ lessons }) {
+  const groups = useMemo(() => {
+    const map = new Map();
+    lessons.forEach((l) => {
+      const arr = map.get(l.tag) || [];
+      arr.push(l);
+      map.set(l.tag, arr);
+    });
+    return [...map.entries()]
+      .map(([tag, items]) => ({
+        tag,
+        total: items.length,
+        reviewed: items.filter((i) => i.reviewed).length,
+        items,
+      }))
+      .sort((a, b) => b.total - a.total);
+  }, [lessons]);
+
+  const topWeakSpots = useMemo(() => {
+    const weak = groups
+      .map((g) => ({ tag: g.tag, unreviewed: g.total - g.reviewed }))
+      .filter((g) => g.unreviewed > 0)
+      .sort((a, b) => b.unreviewed - a.unreviewed)
+      .slice(0, 3);
+    return weak;
+  }, [groups]);
+
+  const [openTag, setOpenTag] = useState(null);
+
+  return (
+    <div className="space-y-4">
+      {topWeakSpots.length > 0 && (
+        <div className="rounded-lg border border-clay/40 bg-clay/5 p-3">
+          <div className="eyebrow text-clay">Your top 3 weak spots</div>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {topWeakSpots.map((w, i) => (
+              <span
+                key={w.tag}
+                className="inline-flex items-center gap-1.5 rounded-full border border-clay bg-paper px-2.5 py-1 text-xs text-clay"
+              >
+                <span className="tabular text-[10px] text-stone-400">#{i + 1}</span>
+                <span className="font-medium">{w.tag}</span>
+                <span className="tabular text-stone-500">{w.unreviewed} unreviewed</span>
+              </span>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-stone-600">This is your actual study target this week.</p>
+        </div>
+      )}
+
+      <ul className="space-y-2">
+        {groups.map((g) => {
+          const pct = g.total === 0 ? 0 : Math.round((g.reviewed / g.total) * 100);
+          const expanded = openTag === g.tag;
+          return (
+            <li key={g.tag} className="rounded-lg border border-rule bg-paper">
+              <button
+                onClick={() => setOpenTag(expanded ? null : g.tag)}
+                className="w-full px-3 py-2.5 text-left hover:bg-stone-50"
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm font-medium text-ink">
+                    {g.tag}{" "}
+                    <span className="text-xs font-normal tabular text-stone-500">
+                      ({g.total} mistake{g.total === 1 ? "" : "s"}, {g.reviewed} reviewed)
+                    </span>
+                  </span>
+                  <span className="tabular font-mono text-xs text-stone-500">{pct}%</span>
+                </div>
+                <div className="mt-1.5 h-1.5 w-full rounded bg-stone-100">
+                  <div className="h-1.5 rounded bg-sage" style={{ width: `${pct}%` }} />
+                </div>
+              </button>
+              {expanded && (
+                <ul className="divide-y divide-rule border-t border-rule">
+                  {g.items.map((l) => (
+                    <li key={l.id} className="bg-paper-warm/30 px-3 py-2 text-xs">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="tabular text-stone-500">{formatShort(l.date.slice(0, 10))}</span>
+                        <span className="text-[10px] uppercase tracking-widest text-stone-400">
+                          {LESSON_CATEGORIES.find((c) => c.id === l.category)?.short}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-stone-800">{l.source}</p>
+                      <p className="mt-0.5 text-stone-600">Why missed: {l.why_i_missed}</p>
+                      {l.reviewed && (
+                        <span className="mt-1 inline-flex items-center gap-0.5 text-[10px] text-sage">
+                          <CheckCircle2 size={10} /> reviewed {l.review_count}×
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function LessonsReviewTab({ lessons, allLessons, onStartReview }) {
+  if (lessons.length === 0) {
+    return (
+      <p className="text-sm italic text-stone-500">
+        Nothing to review. {allLessons.length === 0 ? "Log a lesson first." : "Everything's been reviewed in the last 7 days."}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-stone-600">
+          {lessons.length} entr{lessons.length === 1 ? "y" : "ies"} unreviewed or stale ({">"}{REVIEW_STALE_DAYS} days).
+        </p>
+        <button
+          onClick={() => onStartReview(lessons.slice(0, Math.min(3, lessons.length)).map((l) => l.id))}
+          className="rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper hover:bg-stone-700"
+        >
+          Review {Math.min(3, lessons.length)} now
+        </button>
+      </div>
+      <ul className="divide-y divide-rule overflow-hidden rounded-lg border border-rule">
+        {lessons.map((l) => (
+          <li key={l.id} className="flex flex-wrap items-start justify-between gap-3 bg-paper px-3 py-2 text-xs">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="tabular text-stone-500">{formatShort(l.date.slice(0, 10))}</span>
+                <span className="font-medium text-clay">{l.tag}</span>
+                <span className="text-[10px] uppercase tracking-widest text-stone-400">
+                  {LESSON_CATEGORIES.find((c) => c.id === l.category)?.short}
+                </span>
+                {l.last_reviewed && isStaleReview(l) && (
+                  <span className="rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[9px] text-amber-800">
+                    stale
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 text-stone-800">{l.source}</p>
+              <p className="mt-0.5 text-stone-600">Why missed: {l.why_i_missed}</p>
+            </div>
+            <button
+              onClick={() => onStartReview([l.id])}
+              className="shrink-0 rounded-full border border-rule bg-paper px-2.5 py-1 text-[11px] text-stone-700 hover:border-stone-500"
+            >
+              Review now
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -2229,6 +2883,283 @@ function SwitchingCostModal({ state, calendar, onClose, onProceed }) {
         <button onClick={onProceed} className="rounded border border-stone-800 bg-stone-900 px-3 py-1 text-sm text-stone-50">
           I read this — proceed to change
         </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function LessonModal({ existingLesson, existingTags, atCapacity, onClose, onSave }) {
+  const [source, setSource] = useState(existingLesson?.source || "");
+  const [category, setCategory] = useState(existingLesson?.category || "concept_gap");
+  const [tag, setTag] = useState(existingLesson?.tag || "");
+  const [whatTried, setWhatTried] = useState(existingLesson?.what_i_tried || "");
+  const [whatCorrect, setWhatCorrect] = useState(existingLesson?.what_was_correct || "");
+  const [whyMissed, setWhyMissed] = useState(existingLesson?.why_i_missed || "");
+  const [touched, setTouched] = useState(false);
+
+  const valid =
+    source.trim() &&
+    category &&
+    tag.trim() &&
+    whatTried.trim() &&
+    whatCorrect.trim() &&
+    whyMissed.trim();
+
+  const tagSuggestions = tag.trim()
+    ? existingTags
+        .filter((t) => t.toLowerCase().includes(tag.toLowerCase()) && t.toLowerCase() !== tag.toLowerCase())
+        .slice(0, 5)
+    : [];
+
+  function submit(e) {
+    e?.preventDefault?.();
+    setTouched(true);
+    if (!valid || atCapacity) return;
+    onSave({
+      source,
+      category,
+      tag,
+      what_i_tried: whatTried,
+      what_was_correct: whatCorrect,
+      why_i_missed: whyMissed,
+    });
+  }
+
+  return (
+    <ModalShell onClose={onClose} title={existingLesson ? "Edit lesson" : "Log a lesson"}>
+      {atCapacity && !existingLesson && (
+        <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          You've hit {LESSONS_MAX} lessons. Archive or delete old ones in Career HQ → Lessons before logging more.
+        </div>
+      )}
+      <form onSubmit={submit} className="space-y-3">
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Source</label>
+          <input
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            placeholder="SQLZoo problem 4 / DataCamp Joins / InterviewQuery #142"
+            autoFocus
+            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+          />
+          {touched && !source.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+        </div>
+
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Category</label>
+          <div className="mt-1 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+            {LESSON_CATEGORIES.map((c) => (
+              <label
+                key={c.id}
+                className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition ${
+                  category === c.id
+                    ? "border-ink bg-ink text-paper"
+                    : "border-rule bg-paper text-stone-700 hover:border-stone-500"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="lesson-category"
+                  value={c.id}
+                  checked={category === c.id}
+                  onChange={() => setCategory(c.id)}
+                  className="sr-only"
+                />
+                {c.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Tag</label>
+          <input
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+            placeholder="joins / window functions / pandas merge / RAG"
+            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+            list="lesson-tag-suggestions"
+          />
+          {tagSuggestions.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {tagSuggestions.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTag(t)}
+                  className="rounded-full border border-rule bg-paper px-2 py-0.5 text-[10px] text-stone-600 hover:border-stone-500"
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
+          {touched && !tag.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+        </div>
+
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-stone-500">What I tried</label>
+          <textarea
+            value={whatTried}
+            onChange={(e) => setWhatTried(e.target.value)}
+            rows={2}
+            placeholder="The wrong approach (1–3 lines)"
+            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+          />
+          {touched && !whatTried.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+        </div>
+
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-stone-500">What was correct</label>
+          <textarea
+            value={whatCorrect}
+            onChange={(e) => setWhatCorrect(e.target.value)}
+            rows={2}
+            placeholder="The right approach (1–3 lines)"
+            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+          />
+          {touched && !whatCorrect.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+        </div>
+
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Why I missed it</label>
+          <input
+            value={whyMissed}
+            onChange={(e) => setWhyMissed(e.target.value)}
+            placeholder="Honest gap (1 line)"
+            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+          />
+          {touched && !whyMissed.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-1 text-xs">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded border border-rule bg-paper px-3 py-1.5 hover:border-stone-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!valid || (atCapacity && !existingLesson)}
+            className={`rounded border px-3 py-1.5 transition ${
+              valid && !(atCapacity && !existingLesson)
+                ? "border-ink bg-ink text-paper hover:bg-stone-700"
+                : "cursor-not-allowed border-rule bg-paper-dark/60 text-stone-400"
+            }`}
+          >
+            {existingLesson ? "Save changes" : "Save lesson"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
+  );
+}
+
+function LessonReviewModal({ lessons, onClose, onMarkReviewed, onReLog }) {
+  const [reLogging, setReLogging] = useState(false);
+  const [restatement, setRestatement] = useState("");
+  const lesson = lessons[0];
+
+  if (!lesson) {
+    return (
+      <ModalShell onClose={onClose} title="Review queue">
+        <p className="text-sm text-stone-600">No more lessons to review right now. Solid.</p>
+        <div className="mt-3 flex justify-end">
+          <button onClick={onClose} className="rounded border border-ink bg-ink px-3 py-1.5 text-xs text-paper hover:bg-stone-700">
+            Close
+          </button>
+        </div>
+      </ModalShell>
+    );
+  }
+
+  const total = lessons.length;
+  const remaining = total;
+
+  return (
+    <ModalShell onClose={onClose} title={`Review · ${remaining} left`}>
+      <div className="space-y-3 text-sm">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+          <span className="rounded-full border border-rule bg-paper px-2 py-0.5 text-[10px]">{lessonCategoryLabel(lesson.category)}</span>
+          <span className="rounded-full border border-rule bg-paper-warm px-2 py-0.5 text-[10px] text-clay">{lesson.tag}</span>
+          <span className="tabular text-[10px] text-stone-400">{formatShort(lesson.date.slice(0, 10))}</span>
+        </div>
+        <div>
+          <div className="eyebrow">Source</div>
+          <p className="mt-1 text-stone-800">{lesson.source}</p>
+        </div>
+        <div>
+          <div className="eyebrow">What I tried</div>
+          <p className="mt-1 whitespace-pre-wrap text-stone-800">{lesson.what_i_tried}</p>
+        </div>
+        <div>
+          <div className="eyebrow">What was correct</div>
+          <p className="mt-1 whitespace-pre-wrap text-stone-800">{lesson.what_was_correct}</p>
+        </div>
+        <div>
+          <div className="eyebrow">Why I missed</div>
+          <p className="mt-1 text-stone-800">{lesson.why_i_missed}</p>
+        </div>
+
+        {reLogging && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+            <label className="block text-[10px] uppercase tracking-widest text-amber-800">
+              Re-explain in your own words
+            </label>
+            <textarea
+              value={restatement}
+              onChange={(e) => setRestatement(e.target.value)}
+              rows={3}
+              placeholder="What's still confusing? Write it out — that's how it sticks."
+              className="mt-1 w-full rounded border border-amber-200 bg-paper px-2 py-1.5 text-sm focus:border-amber-500 focus:outline-none"
+              autoFocus
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap justify-end gap-2 text-xs">
+        {!reLogging ? (
+          <>
+            <button
+              onClick={() => setReLogging(true)}
+              className="rounded border border-rule bg-paper px-3 py-1.5 text-stone-700 hover:border-stone-500"
+            >
+              Still confused
+            </button>
+            <button
+              onClick={() => onMarkReviewed(lesson.id)}
+              className="rounded border border-ink bg-ink px-3 py-1.5 text-paper hover:bg-stone-700"
+            >
+              Got it (mark reviewed)
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => {
+                setReLogging(false);
+                setRestatement("");
+              }}
+              className="rounded border border-rule bg-paper px-3 py-1.5 text-stone-700 hover:border-stone-500"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => onReLog(lesson.id, restatement)}
+              disabled={!restatement.trim()}
+              className={`rounded border px-3 py-1.5 transition ${
+                restatement.trim()
+                  ? "border-amber-700 bg-amber-700 text-paper hover:bg-amber-800"
+                  : "cursor-not-allowed border-rule bg-paper-dark/60 text-stone-400"
+              }`}
+            >
+              Save re-log
+            </button>
+          </>
+        )}
       </div>
     </ModalShell>
   );
