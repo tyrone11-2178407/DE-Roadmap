@@ -1308,22 +1308,28 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
 
 function LogLessonRow({ onOpen, lessonsCount, reviewedCount, topWeakSpot }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rule bg-paper-warm/40 px-4 py-2.5">
+    <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 rounded-2xl border border-rule bg-paper-warm/50 px-5 py-3">
       <button
         onClick={onOpen}
-        className="inline-flex items-center gap-1.5 rounded-full border border-ink bg-paper px-3 py-1 text-xs font-medium text-ink hover:bg-stone-100"
+        className="group inline-flex items-center gap-2 rounded-full border border-rule bg-paper px-3.5 py-1.5 text-xs text-ink transition hover:border-clay hover:text-clay"
       >
-        <BookOpen size={12} /> Log a Lesson
+        <BookOpen size={12} className="text-clay transition group-hover:text-clay" />
+        <span className="font-medium">Log a lesson</span>
       </button>
-      <div className="text-[11px] tabular text-stone-500">
-        Lessons logged: <span className="font-medium text-stone-700">{lessonsCount}</span>
-        <span className="mx-1.5 text-stone-300">·</span>
-        Reviewed: <span className="font-medium text-stone-700">{reviewedCount}</span>
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[11px]">
+        <span className="inline-flex items-baseline gap-1.5">
+          <span className="eyebrow">logged</span>
+          <span className="tabular font-serif text-base text-ink">{lessonsCount}</span>
+        </span>
+        <span className="inline-flex items-baseline gap-1.5">
+          <span className="eyebrow">reviewed</span>
+          <span className="tabular font-serif text-base text-sage">{reviewedCount}</span>
+        </span>
         {topWeakSpot && (
-          <>
-            <span className="mx-1.5 text-stone-300">·</span>
-            Top weak spot: <span className="font-medium text-clay">{topWeakSpot}</span>
-          </>
+          <span className="inline-flex items-baseline gap-1.5">
+            <span className="eyebrow">weak spot</span>
+            <span className="font-hanji text-sm italic text-clay">{topWeakSpot}</span>
+          </span>
         )}
       </div>
     </div>
@@ -1332,28 +1338,29 @@ function LogLessonRow({ onOpen, lessonsCount, reviewedCount, topWeakSpot }) {
 
 function MondayReviewBanner({ unreviewedCount, onReview, onSkip }) {
   return (
-    <section className="flex flex-wrap items-start justify-between gap-3 rounded-lg border-l-4 border-celadon bg-celadon/10 px-4 py-3">
+    <section className="relative flex flex-wrap items-start justify-between gap-3 overflow-hidden rounded-2xl border border-celadon/40 bg-paper-warm/60 px-5 py-4">
+      <span className="absolute inset-y-0 left-0 w-1 bg-celadon" aria-hidden="true" />
       <div className="min-w-0">
-        <div className="flex items-center gap-2 text-sm font-medium text-ink">
-          <BookOpen size={13} className="text-celadon" />
-          You have {unreviewedCount} unreviewed lesson{unreviewedCount === 1 ? "" : "s"}.
-        </div>
-        <p className="mt-0.5 text-xs text-stone-600">
-          Review 3 before today's work? Mistakes you don't revisit become a graveyard.
+        <div className="eyebrow text-celadon">Monday review</div>
+        <p className="mt-1 font-hanji text-[15px] leading-relaxed text-ink">
+          You have <span className="tabular font-serif text-base font-medium">{unreviewedCount}</span> unreviewed lesson{unreviewedCount === 1 ? "" : "s"}. Review 3 before today's work?
+        </p>
+        <p className="mt-1 text-[11px] italic text-stone-500">
+          Mistakes you don't revisit become a graveyard.
         </p>
       </div>
-      <div className="flex shrink-0 gap-2">
-        <button
-          onClick={onReview}
-          className="rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper hover:bg-stone-700"
-        >
-          Review 3 now
-        </button>
+      <div className="flex shrink-0 gap-2 self-end">
         <button
           onClick={onSkip}
-          className="rounded-full border border-rule bg-paper px-3 py-1 text-xs text-stone-600 hover:border-stone-500"
+          className="rounded-full border border-rule bg-paper px-3 py-1 text-xs text-stone-600 transition hover:border-stone-500"
         >
           Skip this week
+        </button>
+        <button
+          onClick={onReview}
+          className="rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper transition hover:bg-stone-700"
+        >
+          Review 3 now
         </button>
       </div>
     </section>
@@ -1989,7 +1996,7 @@ function LessonsPanel({ state, onOpenLessonModal, onEditLesson, onDeleteLesson, 
       footerNote="Mistake logs that nobody reviews become graveyards. Review weekly — or this is decoration."
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex flex-wrap rounded-full border border-rule p-0.5 text-xs">
+        <div className="inline-flex flex-wrap rounded-full border border-rule bg-paper-warm/40 p-0.5 text-xs">
           {[
             { id: "all", label: "All lessons" },
             { id: "patterns", label: "Patterns" },
@@ -2008,16 +2015,21 @@ function LessonsPanel({ state, onOpenLessonModal, onEditLesson, onDeleteLesson, 
         </div>
         <button
           onClick={onOpenLessonModal}
-          className="inline-flex items-center gap-1.5 rounded-full border border-ink bg-paper px-3 py-1 text-xs font-medium text-ink hover:bg-stone-100"
+          className="inline-flex items-center gap-1.5 rounded-full border border-rule bg-paper px-3 py-1 text-xs text-ink transition hover:border-clay hover:text-clay"
         >
-          <Plus size={12} /> Log a lesson
+          <Plus size={12} className="text-clay" /> <span className="font-medium">Log a lesson</span>
         </button>
       </div>
 
       {lessons.length === 0 ? (
-        <p className="text-sm italic text-stone-500">
-          No lessons yet. Log mistakes from practice problems as they happen — under 60 seconds, before they fade.
-        </p>
+        <div className="rounded-xl border border-dashed border-rule bg-paper-warm/30 px-5 py-8 text-center">
+          <p className="font-hanji text-[15px] italic leading-relaxed text-stone-500">
+            No lessons yet.
+          </p>
+          <p className="mt-1 text-xs text-stone-500">
+            Log mistakes from practice problems as they happen — under 60 seconds, before they fade.
+          </p>
+        </div>
       ) : (
         <div className="mt-1">
           {subTab === "all" && (
@@ -2071,118 +2083,97 @@ function LessonsAllTab({ lessons, onEdit, onDelete }) {
     });
   }, [lessons, query, filterCategory, filterTag, filterReviewed, fromDate, toDate]);
 
+  const fieldCls =
+    "rounded-md border border-rule bg-paper px-2.5 py-1.5 text-xs text-ink placeholder:text-stone-400 focus:border-rule-strong focus:outline-none";
+
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-2 rounded-lg border border-rule bg-paper-warm/30 p-2 sm:grid-cols-2 lg:grid-cols-6">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search…"
-          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none lg:col-span-2"
+          placeholder="Search lessons…"
+          className={`${fieldCls} lg:col-span-2`}
         />
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm"
-        >
+        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={fieldCls}>
           <option value="">All categories</option>
           {LESSON_CATEGORIES.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.label}
-            </option>
+            <option key={c.id} value={c.id}>{c.label}</option>
           ))}
         </select>
-        <select
-          value={filterTag}
-          onChange={(e) => setFilterTag(e.target.value)}
-          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm"
-        >
+        <select value={filterTag} onChange={(e) => setFilterTag(e.target.value)} className={fieldCls}>
           <option value="">All tags</option>
           {allTags.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
+            <option key={t} value={t}>{t}</option>
           ))}
         </select>
-        <select
-          value={filterReviewed}
-          onChange={(e) => setFilterReviewed(e.target.value)}
-          className="rounded border border-stone-200 bg-white px-2 py-1.5 text-sm"
-        >
+        <select value={filterReviewed} onChange={(e) => setFilterReviewed(e.target.value)} className={fieldCls}>
           <option value="">All statuses</option>
           <option value="yes">Reviewed</option>
           <option value="no">Unreviewed</option>
         </select>
         <div className="flex gap-1">
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-xs"
-            aria-label="From date"
-          />
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-xs"
-            aria-label="To date"
-          />
+          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className={`${fieldCls} w-full`} aria-label="From date" />
+          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className={`${fieldCls} w-full`} aria-label="To date" />
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-sm italic text-stone-500">No lessons match these filters.</p>
+        <p className="px-1 py-2 font-hanji text-sm italic text-stone-500">No lessons match these filters.</p>
       ) : (
-        <ul className="divide-y divide-rule overflow-hidden rounded-lg border border-rule">
+        <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper">
           {filtered.map((l) => {
             const expanded = expandedId === l.id;
             return (
-              <li key={l.id} className="bg-paper">
+              <li key={l.id} className={expanded ? "bg-paper-warm/40" : "bg-paper"}>
                 <button
                   onClick={() => setExpandedId(expanded ? null : l.id)}
-                  className="grid w-full grid-cols-12 items-center gap-2 px-3 py-2 text-left text-xs hover:bg-stone-50"
+                  className="grid w-full grid-cols-12 items-center gap-2 px-3.5 py-2.5 text-left text-xs transition hover:bg-paper-warm/30"
                 >
                   <span className="col-span-2 tabular text-stone-500">{formatShort(l.date.slice(0, 10))}</span>
-                  <span className="col-span-3 truncate text-stone-800">{l.source}</span>
+                  <span className="col-span-3 truncate font-medium text-ink">{l.source}</span>
                   <span className="col-span-2 truncate text-[10px] uppercase tracking-widest text-stone-500">
                     {LESSON_CATEGORIES.find((c) => c.id === l.category)?.short || l.category}
                   </span>
-                  <span className="col-span-2 truncate font-medium text-clay">{l.tag}</span>
-                  <span className="col-span-2 truncate text-stone-600">{l.why_i_missed}</span>
+                  <span className="col-span-2 truncate">
+                    <span className="inline-block rounded-full border border-clay/30 bg-clay/5 px-1.5 py-0.5 text-[10px] font-medium text-clay">
+                      {l.tag}
+                    </span>
+                  </span>
+                  <span className="col-span-2 truncate font-hanji italic text-stone-600">{l.why_i_missed}</span>
                   <span className="col-span-1 text-right">
                     {l.reviewed ? (
                       <span className="inline-flex items-center gap-0.5 text-[10px] text-sage">
-                        <CheckCircle2 size={10} /> {l.review_count}
+                        <CheckCircle2 size={10} /> <span className="tabular">{l.review_count}</span>
                       </span>
                     ) : (
-                      <span className="text-[10px] text-stone-400">—</span>
+                      <span className="text-[10px] text-stone-300">·</span>
                     )}
                   </span>
                 </button>
                 {expanded && (
-                  <div className="space-y-2 border-t border-rule bg-paper-warm/30 px-3 py-3 text-sm">
+                  <div className="space-y-3 border-t border-rule px-4 py-3.5">
                     <div>
-                      <div className="eyebrow">What I tried</div>
-                      <p className="mt-1 whitespace-pre-wrap text-stone-800">{l.what_i_tried}</p>
+                      <div className="eyebrow text-clay">What I tried</div>
+                      <p className="mt-1 whitespace-pre-wrap font-hanji text-[14px] leading-relaxed text-ink">{l.what_i_tried}</p>
                     </div>
                     <div>
-                      <div className="eyebrow">What was correct</div>
-                      <p className="mt-1 whitespace-pre-wrap text-stone-800">{l.what_was_correct}</p>
+                      <div className="eyebrow text-sage">What was correct</div>
+                      <p className="mt-1 whitespace-pre-wrap font-hanji text-[14px] leading-relaxed text-ink">{l.what_was_correct}</p>
                     </div>
                     <div>
-                      <div className="eyebrow">Why I missed</div>
-                      <p className="mt-1 text-stone-800">{l.why_i_missed}</p>
+                      <div className="eyebrow text-celadon">Why I missed</div>
+                      <p className="mt-1 font-hanji text-[14px] leading-relaxed text-ink">{l.why_i_missed}</p>
                     </div>
                     {l.last_reviewed && (
-                      <p className="text-[10px] text-stone-500">
+                      <p className="text-[10px] italic text-stone-500">
                         Last reviewed {formatShort(l.last_reviewed.slice(0, 10))} · {l.review_count} review{l.review_count === 1 ? "" : "s"}
                       </p>
                     )}
                     <div className="flex justify-end gap-2 pt-1">
                       <button
                         onClick={() => onEdit(l)}
-                        className="rounded border border-rule bg-paper px-2.5 py-1 text-xs text-stone-700 hover:border-stone-500"
+                        className="rounded-full border border-rule bg-paper px-3 py-1 text-xs text-stone-700 transition hover:border-stone-500 hover:text-ink"
                       >
                         Edit
                       </button>
@@ -2190,7 +2181,7 @@ function LessonsAllTab({ lessons, onEdit, onDelete }) {
                         onClick={() => {
                           if (confirm("Delete this lesson? This cannot be undone.")) onDelete(l.id);
                         }}
-                        className="inline-flex items-center gap-1 rounded border border-rule bg-paper px-2.5 py-1 text-xs text-stone-600 hover:border-clay hover:text-clay"
+                        className="inline-flex items-center gap-1 rounded-full border border-rule bg-paper px-3 py-1 text-xs text-stone-600 transition hover:border-clay hover:text-clay"
                       >
                         <Trash2 size={11} /> Delete
                       </button>
@@ -2238,21 +2229,26 @@ function LessonsPatternsTab({ lessons }) {
   return (
     <div className="space-y-4">
       {topWeakSpots.length > 0 && (
-        <div className="rounded-lg border border-clay/40 bg-clay/5 p-3">
+        <div className="rounded-xl border border-clay/30 bg-clay/5 px-4 py-3.5">
           <div className="eyebrow text-clay">Your top 3 weak spots</div>
-          <div className="mt-1.5 flex flex-wrap gap-2">
+          <ol className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
             {topWeakSpots.map((w, i) => (
-              <span
-                key={w.tag}
-                className="inline-flex items-center gap-1.5 rounded-full border border-clay bg-paper px-2.5 py-1 text-xs text-clay"
-              >
-                <span className="tabular text-[10px] text-stone-400">#{i + 1}</span>
-                <span className="font-medium">{w.tag}</span>
-                <span className="tabular text-stone-500">{w.unreviewed} unreviewed</span>
-              </span>
+              <li key={w.tag} className="rounded-lg border border-clay/30 bg-paper px-3 py-2">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-serif text-2xl tabular text-clay">{i + 1}</span>
+                  <div className="min-w-0">
+                    <div className="truncate font-hanji text-[14px] font-medium text-ink">{w.tag}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-stone-500">
+                      <span className="tabular">{w.unreviewed}</span> unreviewed
+                    </div>
+                  </div>
+                </div>
+              </li>
             ))}
-          </div>
-          <p className="mt-2 text-[11px] text-stone-600">This is your actual study target this week.</p>
+          </ol>
+          <p className="mt-2.5 font-hanji text-[12px] italic leading-relaxed text-stone-600">
+            This is your actual study target this week.
+          </p>
         </div>
       )}
 
@@ -2261,39 +2257,39 @@ function LessonsPatternsTab({ lessons }) {
           const pct = g.total === 0 ? 0 : Math.round((g.reviewed / g.total) * 100);
           const expanded = openTag === g.tag;
           return (
-            <li key={g.tag} className="rounded-lg border border-rule bg-paper">
+            <li key={g.tag} className="overflow-hidden rounded-xl border border-rule bg-paper">
               <button
                 onClick={() => setOpenTag(expanded ? null : g.tag)}
-                className="w-full px-3 py-2.5 text-left hover:bg-stone-50"
+                className="w-full px-4 py-3 text-left transition hover:bg-paper-warm/30"
               >
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm font-medium text-ink">
-                    {g.tag}{" "}
-                    <span className="text-xs font-normal tabular text-stone-500">
-                      ({g.total} mistake{g.total === 1 ? "" : "s"}, {g.reviewed} reviewed)
-                    </span>
-                  </span>
-                  <span className="tabular font-mono text-xs text-stone-500">{pct}%</span>
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-hanji text-[15px] font-medium text-ink">{g.tag}</div>
+                    <div className="mt-0.5 text-[11px] tabular text-stone-500">
+                      {g.total} mistake{g.total === 1 ? "" : "s"} · {g.reviewed} reviewed
+                    </div>
+                  </div>
+                  <span className="tabular font-serif text-base text-stone-700">{pct}%</span>
                 </div>
-                <div className="mt-1.5 h-1.5 w-full rounded bg-stone-100">
-                  <div className="h-1.5 rounded bg-sage" style={{ width: `${pct}%` }} />
+                <div className="mt-2 h-1 w-full rounded-full bg-rule/50">
+                  <div className="h-1 rounded-full bg-sage transition-all" style={{ width: `${pct}%` }} />
                 </div>
               </button>
               {expanded && (
-                <ul className="divide-y divide-rule border-t border-rule">
+                <ul className="divide-y divide-rule border-t border-rule bg-paper-warm/30">
                   {g.items.map((l) => (
-                    <li key={l.id} className="bg-paper-warm/30 px-3 py-2 text-xs">
+                    <li key={l.id} className="px-4 py-2.5 text-xs">
                       <div className="flex items-baseline justify-between gap-2">
                         <span className="tabular text-stone-500">{formatShort(l.date.slice(0, 10))}</span>
                         <span className="text-[10px] uppercase tracking-widest text-stone-400">
                           {LESSON_CATEGORIES.find((c) => c.id === l.category)?.short}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-stone-800">{l.source}</p>
-                      <p className="mt-0.5 text-stone-600">Why missed: {l.why_i_missed}</p>
+                      <p className="mt-0.5 font-medium text-ink">{l.source}</p>
+                      <p className="mt-0.5 font-hanji italic text-stone-600">Why missed: {l.why_i_missed}</p>
                       {l.reviewed && (
                         <span className="mt-1 inline-flex items-center gap-0.5 text-[10px] text-sage">
-                          <CheckCircle2 size={10} /> reviewed {l.review_count}×
+                          <CheckCircle2 size={10} /> reviewed <span className="tabular">{l.review_count}×</span>
                         </span>
                       )}
                     </li>
@@ -2318,39 +2314,41 @@ function LessonsReviewTab({ lessons, allLessons, onStartReview }) {
   }
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-stone-600">
-          {lessons.length} entr{lessons.length === 1 ? "y" : "ies"} unreviewed or stale ({">"}{REVIEW_STALE_DAYS} days).
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-rule bg-paper-warm/40 px-4 py-2.5">
+        <p className="font-hanji text-[13px] italic leading-relaxed text-stone-600">
+          <span className="tabular not-italic font-serif text-base text-ink">{lessons.length}</span> entr{lessons.length === 1 ? "y" : "ies"} unreviewed or stale ({">"}{REVIEW_STALE_DAYS} days).
         </p>
         <button
           onClick={() => onStartReview(lessons.slice(0, Math.min(3, lessons.length)).map((l) => l.id))}
-          className="rounded-full border border-ink bg-ink px-3 py-1 text-xs text-paper hover:bg-stone-700"
+          className="rounded-full border border-ink bg-ink px-3.5 py-1 text-xs text-paper transition hover:bg-stone-700"
         >
           Review {Math.min(3, lessons.length)} now
         </button>
       </div>
-      <ul className="divide-y divide-rule overflow-hidden rounded-lg border border-rule">
+      <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper">
         {lessons.map((l) => (
-          <li key={l.id} className="flex flex-wrap items-start justify-between gap-3 bg-paper px-3 py-2 text-xs">
+          <li key={l.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-2.5 text-xs transition hover:bg-paper-warm/30">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-2">
                 <span className="tabular text-stone-500">{formatShort(l.date.slice(0, 10))}</span>
-                <span className="font-medium text-clay">{l.tag}</span>
+                <span className="inline-block rounded-full border border-clay/30 bg-clay/5 px-1.5 py-0.5 text-[10px] font-medium text-clay">
+                  {l.tag}
+                </span>
                 <span className="text-[10px] uppercase tracking-widest text-stone-400">
                   {LESSON_CATEGORIES.find((c) => c.id === l.category)?.short}
                 </span>
                 {l.last_reviewed && isStaleReview(l) && (
-                  <span className="rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[9px] text-amber-800">
+                  <span className="rounded-full border border-celadon/40 bg-celadon/10 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-celadon">
                     stale
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 text-stone-800">{l.source}</p>
-              <p className="mt-0.5 text-stone-600">Why missed: {l.why_i_missed}</p>
+              <p className="mt-1 font-medium text-ink">{l.source}</p>
+              <p className="mt-0.5 font-hanji italic text-stone-600">Why missed: {l.why_i_missed}</p>
             </div>
             <button
               onClick={() => onStartReview([l.id])}
-              className="shrink-0 rounded-full border border-rule bg-paper px-2.5 py-1 text-[11px] text-stone-700 hover:border-stone-500"
+              className="shrink-0 self-center rounded-full border border-rule bg-paper px-3 py-1 text-[11px] text-stone-700 transition hover:border-clay hover:text-clay"
             >
               Review now
             </button>
@@ -2925,36 +2923,42 @@ function LessonModal({ existingLesson, existingTags, atCapacity, onClose, onSave
     });
   }
 
+  const inputCls =
+    "mt-1.5 w-full rounded-md border border-rule bg-paper-warm/30 px-2.5 py-1.5 text-sm text-ink placeholder:text-stone-400 focus:border-rule-strong focus:bg-paper focus:outline-none";
+
   return (
     <ModalShell onClose={onClose} title={existingLesson ? "Edit lesson" : "Log a lesson"}>
+      <p className="-mt-1 mb-3 font-hanji text-[13px] italic leading-relaxed text-stone-500">
+        Capture it now, before it fades. Under 60 seconds.
+      </p>
       {atCapacity && !existingLesson && (
-        <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <div className="mb-3 rounded-lg border-l-2 border-clay bg-clay/5 px-3 py-2 text-xs text-stone-700">
           You've hit {LESSONS_MAX} lessons. Archive or delete old ones in Career HQ → Lessons before logging more.
         </div>
       )}
-      <form onSubmit={submit} className="space-y-3">
+      <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Source</label>
+          <label className="eyebrow">Source</label>
           <input
             value={source}
             onChange={(e) => setSource(e.target.value)}
             placeholder="SQLZoo problem 4 / DataCamp Joins / InterviewQuery #142"
             autoFocus
-            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+            className={inputCls}
           />
-          {touched && !source.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+          {touched && !source.trim() && <p className="mt-1 text-[10px] italic text-clay">Required.</p>}
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Category</label>
-          <div className="mt-1 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+          <label className="eyebrow">Category</label>
+          <div className="mt-1.5 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
             {LESSON_CATEGORIES.map((c) => (
               <label
                 key={c.id}
-                className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition ${
+                className={`flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2.5 py-2 text-xs transition ${
                   category === c.id
                     ? "border-ink bg-ink text-paper"
-                    : "border-rule bg-paper text-stone-700 hover:border-stone-500"
+                    : "border-rule bg-paper text-stone-700 hover:border-rule-strong"
                 }`}
               >
                 <input
@@ -2972,78 +2976,78 @@ function LessonModal({ existingLesson, existingTags, atCapacity, onClose, onSave
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Tag</label>
+          <label className="eyebrow">Tag</label>
           <input
             value={tag}
             onChange={(e) => setTag(e.target.value)}
             placeholder="joins / window functions / pandas merge / RAG"
-            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+            className={inputCls}
             list="lesson-tag-suggestions"
           />
           {tagSuggestions.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
+            <div className="mt-1.5 flex flex-wrap gap-1">
               {tagSuggestions.map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setTag(t)}
-                  className="rounded-full border border-rule bg-paper px-2 py-0.5 text-[10px] text-stone-600 hover:border-stone-500"
+                  className="rounded-full border border-rule bg-paper-warm/60 px-2 py-0.5 text-[10px] text-stone-600 transition hover:border-rule-strong hover:text-ink"
                 >
                   {t}
                 </button>
               ))}
             </div>
           )}
-          {touched && !tag.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+          {touched && !tag.trim() && <p className="mt-1 text-[10px] italic text-clay">Required.</p>}
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-stone-500">What I tried</label>
+          <label className="eyebrow">What I tried</label>
           <textarea
             value={whatTried}
             onChange={(e) => setWhatTried(e.target.value)}
             rows={2}
             placeholder="The wrong approach (1–3 lines)"
-            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+            className={`${inputCls} resize-none leading-relaxed`}
           />
-          {touched && !whatTried.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+          {touched && !whatTried.trim() && <p className="mt-1 text-[10px] italic text-clay">Required.</p>}
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-stone-500">What was correct</label>
+          <label className="eyebrow">What was correct</label>
           <textarea
             value={whatCorrect}
             onChange={(e) => setWhatCorrect(e.target.value)}
             rows={2}
             placeholder="The right approach (1–3 lines)"
-            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+            className={`${inputCls} resize-none leading-relaxed`}
           />
-          {touched && !whatCorrect.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+          {touched && !whatCorrect.trim() && <p className="mt-1 text-[10px] italic text-clay">Required.</p>}
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-stone-500">Why I missed it</label>
+          <label className="eyebrow">Why I missed it</label>
           <input
             value={whyMissed}
             onChange={(e) => setWhyMissed(e.target.value)}
             placeholder="Honest gap (1 line)"
-            className="mt-1 w-full rounded border border-stone-200 bg-white px-2 py-1.5 text-sm focus:border-stone-500 focus:outline-none"
+            className={inputCls}
           />
-          {touched && !whyMissed.trim() && <p className="mt-1 text-[10px] text-clay">Required.</p>}
+          {touched && !whyMissed.trim() && <p className="mt-1 text-[10px] italic text-clay">Required.</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1 text-xs">
+        <div className="flex items-center justify-end gap-2 pt-2 text-xs">
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-rule bg-paper px-3 py-1.5 hover:border-stone-500"
+            className="rounded-full border border-rule bg-paper px-3.5 py-1.5 text-stone-600 transition hover:border-stone-500 hover:text-ink"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={!valid || (atCapacity && !existingLesson)}
-            className={`rounded border px-3 py-1.5 transition ${
+            className={`rounded-full border px-3.5 py-1.5 transition ${
               valid && !(atCapacity && !existingLesson)
                 ? "border-ink bg-ink text-paper hover:bg-stone-700"
                 : "cursor-not-allowed border-rule bg-paper-dark/60 text-stone-400"
@@ -3080,60 +3084,72 @@ function LessonReviewModal({ lessons, onClose, onMarkReviewed, onReLog }) {
 
   return (
     <ModalShell onClose={onClose} title={`Review · ${remaining} left`}>
-      <div className="space-y-3 text-sm">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
-          <span className="rounded-full border border-rule bg-paper px-2 py-0.5 text-[10px]">{lessonCategoryLabel(lesson.category)}</span>
-          <span className="rounded-full border border-rule bg-paper-warm px-2 py-0.5 text-[10px] text-clay">{lesson.tag}</span>
-          <span className="tabular text-[10px] text-stone-400">{formatShort(lesson.date.slice(0, 10))}</span>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="rounded-full border border-rule bg-paper-warm/60 px-2 py-0.5 text-[10px] uppercase tracking-widest text-stone-500">
+            {lessonCategoryLabel(lesson.category)}
+          </span>
+          <span className="rounded-full border border-clay/30 bg-clay/5 px-2 py-0.5 text-[10px] font-medium text-clay">
+            {lesson.tag}
+          </span>
+          <span className="ml-auto tabular text-[10px] text-stone-400">
+            {formatShort(lesson.date.slice(0, 10))}
+          </span>
         </div>
-        <div>
+
+        <div className="rounded-xl border border-rule bg-paper-warm/30 p-4">
           <div className="eyebrow">Source</div>
-          <p className="mt-1 text-stone-800">{lesson.source}</p>
+          <p className="mt-1 font-hanji text-[15px] leading-relaxed text-ink">{lesson.source}</p>
         </div>
-        <div>
-          <div className="eyebrow">What I tried</div>
-          <p className="mt-1 whitespace-pre-wrap text-stone-800">{lesson.what_i_tried}</p>
-        </div>
-        <div>
-          <div className="eyebrow">What was correct</div>
-          <p className="mt-1 whitespace-pre-wrap text-stone-800">{lesson.what_was_correct}</p>
-        </div>
-        <div>
-          <div className="eyebrow">Why I missed</div>
-          <p className="mt-1 text-stone-800">{lesson.why_i_missed}</p>
+
+        <div className="space-y-3">
+          <div className="rounded-lg border-l-2 border-clay/60 bg-paper px-3.5 py-2.5">
+            <div className="eyebrow text-clay">What I tried</div>
+            <p className="mt-1 whitespace-pre-wrap font-hanji text-[15px] leading-relaxed text-ink">
+              {lesson.what_i_tried}
+            </p>
+          </div>
+          <div className="rounded-lg border-l-2 border-sage/70 bg-paper px-3.5 py-2.5">
+            <div className="eyebrow text-sage">What was correct</div>
+            <p className="mt-1 whitespace-pre-wrap font-hanji text-[15px] leading-relaxed text-ink">
+              {lesson.what_was_correct}
+            </p>
+          </div>
+          <div className="rounded-lg border-l-2 border-celadon/70 bg-paper px-3.5 py-2.5">
+            <div className="eyebrow text-celadon">Why I missed</div>
+            <p className="mt-1 font-hanji text-[15px] leading-relaxed text-ink">{lesson.why_i_missed}</p>
+          </div>
         </div>
 
         {reLogging && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
-            <label className="block text-[10px] uppercase tracking-widest text-amber-800">
-              Re-explain in your own words
-            </label>
+          <div className="rounded-xl border border-clay/40 bg-clay/5 p-3.5">
+            <label className="eyebrow text-clay">Re-explain in your own words</label>
             <textarea
               value={restatement}
               onChange={(e) => setRestatement(e.target.value)}
               rows={3}
               placeholder="What's still confusing? Write it out — that's how it sticks."
-              className="mt-1 w-full rounded border border-amber-200 bg-paper px-2 py-1.5 text-sm focus:border-amber-500 focus:outline-none"
+              className="mt-1.5 w-full resize-none rounded-md border border-rule bg-paper px-2.5 py-1.5 text-sm leading-relaxed text-ink placeholder:text-stone-400 focus:border-clay focus:outline-none"
               autoFocus
             />
           </div>
         )}
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-end gap-2 text-xs">
+      <div className="mt-5 flex flex-wrap justify-end gap-2 text-xs">
         {!reLogging ? (
           <>
             <button
               onClick={() => setReLogging(true)}
-              className="rounded border border-rule bg-paper px-3 py-1.5 text-stone-700 hover:border-stone-500"
+              className="rounded-full border border-rule bg-paper px-3.5 py-1.5 text-stone-700 transition hover:border-clay hover:text-clay"
             >
               Still confused
             </button>
             <button
               onClick={() => onMarkReviewed(lesson.id)}
-              className="rounded border border-ink bg-ink px-3 py-1.5 text-paper hover:bg-stone-700"
+              className="rounded-full border border-ink bg-ink px-3.5 py-1.5 text-paper transition hover:bg-stone-700"
             >
-              Got it (mark reviewed)
+              Got it · mark reviewed
             </button>
           </>
         ) : (
@@ -3143,16 +3159,16 @@ function LessonReviewModal({ lessons, onClose, onMarkReviewed, onReLog }) {
                 setReLogging(false);
                 setRestatement("");
               }}
-              className="rounded border border-rule bg-paper px-3 py-1.5 text-stone-700 hover:border-stone-500"
+              className="rounded-full border border-rule bg-paper px-3.5 py-1.5 text-stone-700 transition hover:border-stone-500"
             >
               Cancel
             </button>
             <button
               onClick={() => onReLog(lesson.id, restatement)}
               disabled={!restatement.trim()}
-              className={`rounded border px-3 py-1.5 transition ${
+              className={`rounded-full border px-3.5 py-1.5 transition ${
                 restatement.trim()
-                  ? "border-amber-700 bg-amber-700 text-paper hover:bg-amber-800"
+                  ? "border-clay bg-clay text-paper hover:bg-clay/90"
                   : "cursor-not-allowed border-rule bg-paper-dark/60 text-stone-400"
               }`}
             >
