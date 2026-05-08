@@ -3237,3 +3237,40 @@ function ModalShell({ title, onClose, children }) {
     </div>
   );
 }
+
+function CaptureInbox({ items, onAdd, onDelete }) {
+  const [text, setText] = useState("");
+  function handleAdd() {
+    if (!text.trim()) return;
+    onAdd(text);
+    setText("");
+  }
+  return (
+    <SectionCard title="Capture Inbox">
+      <p className="text-xs text-stone-500 mb-2">Brain dump. Don't carry it. Process weekly.</p>
+      <div className="flex gap-2 mb-3">
+        <input
+          className="flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm"
+          placeholder="What's on your mind…"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }}
+        />
+        <button onClick={handleAdd} className="rounded-md bg-ink text-paper px-4 py-2 text-sm">Capture</button>
+      </div>
+      {items.length === 0 ? (
+        <p className="text-xs text-stone-400 italic">Inbox empty.</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {items.slice(0, 20).map((c) => (
+            <li key={c.id} className="flex items-start gap-2 text-sm">
+              <span className="text-stone-400 text-xs pt-1 w-16 shrink-0">{formatShort(c.dateISO)}</span>
+              <span className="flex-1">{c.text}</span>
+              <button onClick={() => onDelete(c.id)} className="text-stone-300 hover:text-red-500 text-xs">×</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SectionCard>
+  );
+}
