@@ -1748,6 +1748,21 @@ function AskClaudeCard({ stage }) {
 
 // ---------- Quest Map ----------
 
+function phaseLabel(stageOrder) {
+  if (stageOrder <= 3) return "Foundation";
+  if (stageOrder === 4) return "Portfolio";
+  if (stageOrder === 5) return "Branches";
+  if (stageOrder === 6) return "Apply";
+  return "Sprint";
+}
+const PHASE_COLORS = {
+  Foundation: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Portfolio: "bg-blue-50 text-blue-700 border-blue-200",
+  Branches: "bg-purple-50 text-purple-700 border-purple-200",
+  Apply: "bg-amber-50 text-amber-700 border-amber-200",
+  Sprint: "bg-rose-50 text-rose-700 border-rose-200",
+};
+
 function QuestMap({ state, calendar, currentStageId, selectedStageId, onPick, onShipMVP, onUnshipMVP }) {
   const selected = STAGES.find((s) => s.id === selectedStageId);
   const trackInfo = TRACKS[state.track];
@@ -1785,6 +1800,11 @@ function QuestMap({ state, calendar, currentStageId, selectedStageId, onPick, on
                   </div>
                   <div className={`mt-1 font-serif text-base leading-tight ${isSelected ? "text-stone-50" : "text-stone-900"}`}>
                     {s.title}
+                  </div>
+                  <div className="mt-1">
+                    <span className={`text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded border ${isSelected ? "bg-stone-800 text-stone-300 border-stone-600" : PHASE_COLORS[phaseLabel(s.order)]}`}>
+                      {phaseLabel(s.order)}
+                    </span>
                   </div>
                   <div className={`mt-2 flex flex-wrap gap-1`}>
                     {s.tags.map((t) => (
