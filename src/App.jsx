@@ -3541,3 +3541,68 @@ function StarStoriesTracker({ stories, onAdd, onUpdate, onDelete }) {
     </SectionCard>
   );
 }
+
+const PIPELINE_STAGES = ["Applied", "Recruiter", "Tech Screen", "Onsite", "Offer"];
+const OFFER_STATUSES = [
+  { id: "pending", label: "Pending" },
+  { id: "offered", label: "Offered" },
+  { id: "accepted", label: "Accepted" },
+  { id: "rejected", label: "Rejected" },
+  { id: "ghosted", label: "Ghosted" },
+];
+
+function PipelineTracker({ pipeline, applications, onAddStage, onSetOffer }) {
+  const allApps = [...ROLLING_APPLICATIONS, ...COHORT_APPLICATIONS];
+  const active = allApps.filter((a) => applications[a.id]?.status === "applied");
+  return (
+    <SectionCard title="Interview Pipeline">
+      <p className="text-xs text-stone-500 mb-3">Applied → Recruiter → Tech Screen → Onsite → Offer. Updated as you move.</p>
+      {active.length === 0 ? (
+        <p className="text-xs text-stone-400 italic">Mark applications as "applied" in Application Timeline to see them here.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-stone-200 text-left text-stone-500">
+                <th className="py-1.5 pr-2">Company</th>
+                {PIPELINE_STAGES.map((s) => <th key={s} className="py-1.5 px-2 text-center">{s}</th>)}
+                <th className="py-1.5 pl-2">Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              {active.map((a) => {
+                const p = (pipeline || {})[a.id] || { stages: [], offerStatus: null };
+                const reached = new Set(p.stages.map((s) => s.name));
+                return (
+                  <tr key={a.id} className="border-b border-stone-100">
+                    <td className="py-1.5 pr-2 font-medium">{a.name}</td>
+                    {PIPELINE_STAGES.map((s) => (
+                      <td key={s} className="py-1.5 px-2 text-center">
+                        <button
+                          onClick={() => onAddStage(a.id, { name: s })}
+                          className={`text-[10px] px-2 py-0.5 rounded ${reached.has(s) ? "bg-emerald-100 text-emerald-700" : "bg-stone-50 text-stone-400 hover:bg-stone-100"}`}
+                        >
+                          {reached.has(s) ? "✓" : "+"}
+                        </button>
+                      </td>
+                    ))}
+                    <td className="py-1.5 pl-2">
+                      <select
+                        value={p.offerStatus || ""}
+                        onChange={(e) => onSetOffer(a.id, e.target.value || null)}
+                        className="text-[10px] rounded border border-stone-200 px-1 py-0.5"
+                      >
+                        <option value="">—</option>
+                        {OFFER_STATUSES.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </SectionCard>
+  );
+}
