@@ -2702,6 +2702,25 @@ function ArtifactWall({ state, onAdd, onRemove }) {
   return (
     <SectionCard title={<span className="flex items-center gap-2"><Shield size={18} /> Artifact Wall</span>} footerNote="Real shipped things only. No counting intentions.">
       {undoBanner}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-xs">
+        {[
+          { kind: "sql_problem", label: "SQL solved", target: 75 },
+          { kind: "code_commit", label: "Commits", target: 50 },
+          { kind: "application", label: "Applications", target: 100 },
+          { kind: "star_story", label: "STAR stories", target: 15 },
+        ].map((row) => {
+          const count = (state.artifacts || []).filter((a) => a.kind === row.kind).length;
+          const pct = Math.min(100, Math.round((count / row.target) * 100));
+          return (
+            <div key={row.kind} className="rounded-md border border-stone-200 p-2">
+              <div className="flex justify-between text-stone-500"><span>{row.label}</span><span>{count}/{row.target}</span></div>
+              <div className="h-1.5 bg-stone-100 rounded-full mt-1 overflow-hidden">
+                <div className="h-full bg-emerald-400" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
       <form onSubmit={submit} className="flex flex-wrap items-end gap-2 rounded-lg border border-stone-200 bg-stone-50 p-3">
         <div className="flex-1 min-w-[200px]">
           <label className="block text-[10px] uppercase tracking-widest text-stone-500">Type</label>
