@@ -390,39 +390,40 @@ const SPRINT_TARGETS = [
 ];
 
 const GAP_RADAR_GATES = {
-  fde: {
-    title: "FDE Readiness",
+  big4: {
+    title: "Big 4 Tech Consulting Readiness",
     color: "amber",
     gates: [
-      { id: "fde-vertical-agent", label: "Shipped 1 vertical AI agent" },
-      { id: "fde-demo", label: "2-min demo recorded" },
-      { id: "fde-discovery-5", label: "5+ customer discovery calls completed" },
-      { id: "fde-ccp", label: "AWS Cloud Practitioner passed" },
-      { id: "fde-cursor-30", label: "Daily Cursor or Claude Code use 30+ days" },
+      { id: "big4-sql-75", label: "75 SQL problems solved" },
+      { id: "big4-dashboards-3", label: "3 Tableau / Power BI dashboards live" },
+      { id: "big4-portfolio", label: "1 portfolio project on GitHub" },
+      { id: "big4-stars-15", label: "15 STAR stories drafted" },
+      { id: "big4-cases-10", label: "10 light cases drilled" },
+      { id: "big4-mocks-5", label: "5 mock interviews completed" },
     ],
   },
-  se: {
-    title: "SE Rotational Program Readiness",
+  sales: {
+    title: "Tech Sales Readiness",
     color: "indigo",
     gates: [
-      { id: "se-aws-techu", label: "Applied to AWS Tech U" },
-      { id: "se-ms-aspire", label: "Applied to Microsoft Aspire" },
-      { id: "se-sf-futureforce", label: "Applied to Salesforce Futureforce" },
-      { id: "se-oracle", label: "Applied to Oracle Class Of" },
-      { id: "se-cisco", label: "Applied to Cisco CSAP" },
-      { id: "se-ibm", label: "Applied to IBM Consulting" },
-      { id: "se-stars-15", label: "15 STAR stories prepped" },
-      { id: "se-amazon-lp", label: "2 stories per Amazon LP (16 LPs × 2)" },
+      { id: "sales-tmay", label: "Tell-me-about-yourself in 90s without thinking" },
+      { id: "sales-coldcalls", label: "10 mock cold calls completed" },
+      { id: "sales-pitch", label: "1 product pitch recorded on Loom" },
+      { id: "sales-spin", label: "SPIN Selling or Challenger Sale read" },
+      { id: "sales-research-5", label: "5 target SaaS products researched in depth" },
+      { id: "sales-mocks-5", label: "5 SDR/AE mock interviews completed" },
     ],
   },
-  bie: {
-    title: "BIE Fallback Readiness",
+  analyst: {
+    title: "Product / Data Analyst Readiness",
     color: "stone",
     gates: [
-      { id: "bie-sql-50", label: "50 SQL questions solved" },
-      { id: "bie-pandas", label: "pandas project shipped" },
-      { id: "bie-api-script", label: "Python+API script deployed" },
-      { id: "bie-dashboard", label: "Tableau or Power BI dashboard published" },
+      { id: "analyst-sql-75", label: "75 SQL problems solved" },
+      { id: "analyst-funnel", label: "1 user-funnel dashboard published" },
+      { id: "analyst-product-sense", label: "5 product-sense answers drilled" },
+      { id: "analyst-ab", label: "Comfortable explaining an A/B test" },
+      { id: "analyst-portfolio", label: "Portfolio project on GitHub" },
+      { id: "analyst-mocks-3", label: "3 mock product analytics interviews completed" },
     ],
   },
 };
