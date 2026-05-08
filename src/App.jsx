@@ -2959,7 +2959,7 @@ function FuturePivots() {
     <div className="space-y-4">
       <SectionCard title={<span className="flex items-center gap-2"><Lock size={18} /> Future Pivots</span>}>
         <p className="text-sm text-stone-600">
-          Visible for honesty, not active. The primary pitch is FDE/SE. BIE / AE is the explicit fallback inside the same SQL/Python spine.
+          Visible for honesty, not active. Primary track: Consulting + Sales (Big 4 Tech Advisory + new-grad Sales programs). Analyst is the explicit fallback — same SQL/Python foundation.
         </p>
       </SectionCard>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -2989,6 +2989,9 @@ function TrackChangeModal({ state, onClose, onConfirm }) {
     <ModalShell onClose={onClose} title="Re-evaluate track">
       <p className="text-sm text-stone-600">
         Locked on <strong>{TRACKS[state.track].short}</strong>. To change, write 200+ characters explaining what changed since you committed.
+      </p>
+      <p className="mt-2 text-xs text-stone-500">
+        Switching focus alters which Stage 5 branch you deep-prep (cases vs. sales pitch vs. analyst depth) and which companies are emphasized in Career HQ. Foundation work (Stages 1-4) and the application sprint (6-7) carry over directly.
       </p>
       <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {Object.values(TRACKS).map((t) => (
