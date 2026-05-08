@@ -1,8 +1,8 @@
 {
-  "name": "data-engineer-quest",
+  "name": "career-quest",
   "private": false,
-  "version": "0.0.0",
-  "description": "A calm ADHD-friendly learning OS for becoming interview-ready in Data Analyst, BI, BIE, and AE paths.",
+  "version": "0.1.0",
+  "description": "A calm ADHD-friendly learning OS for landing a tech career — Big 4 Tech Consulting, Tech Sales, and Product/Data Analyst tracks.",
   "type": "module",
   "scripts": {
     "dev": "vite",
