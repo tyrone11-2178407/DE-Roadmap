@@ -3690,7 +3690,6 @@ function DiscoveryCRM({ discovery, onAdd, onUpdate, onDelete }) {
       ) : (
         <ul className="space-y-2">
           {(discovery || []).map((c) => {
-            const statusObj = DISCOVERY_STATUSES.find((s) => s.id === c.status) || DISCOVERY_STATUSES[0];
             return (
               <li key={c.id} className="border border-stone-200 rounded-md p-2.5 text-sm">
                 <div className="flex items-start justify-between gap-2">
