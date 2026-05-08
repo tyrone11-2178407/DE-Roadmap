@@ -3390,3 +3390,86 @@ function LeetCodeTracker({ leetcode, onLog }) {
     </SectionCard>
   );
 }
+
+const DISCOVERY_STATUSES = [
+  { id: "outreach", label: "Outreach sent", color: "bg-stone-100 text-stone-700" },
+  { id: "replied", label: "Replied", color: "bg-blue-100 text-blue-700" },
+  { id: "scheduled", label: "Scheduled", color: "bg-amber-100 text-amber-700" },
+  { id: "completed", label: "Completed", color: "bg-emerald-100 text-emerald-700" },
+  { id: "ghosted", label: "Ghosted", color: "bg-stone-100 text-stone-400" },
+];
+
+function DiscoveryCRM({ discovery, onAdd, onUpdate, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState({ name: "", role: "", company: "", source: "", notes: "" });
+
+  function submit() {
+    if (!draft.name.trim()) return;
+    onAdd(draft);
+    setDraft({ name: "", role: "", company: "", source: "", notes: "" });
+    setOpen(false);
+  }
+
+  const counts = DISCOVERY_STATUSES.reduce((acc, s) => {
+    acc[s.id] = (discovery || []).filter((d) => d.status === s.id).length;
+    return acc;
+  }, {});
+
+  return (
+    <SectionCard title="Discovery / Networking CRM">
+      <p className="text-xs text-stone-500 mb-3">Track outreach, replies, calls. Aim for 5+ informational interviews logged.</p>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {DISCOVERY_STATUSES.map((s) => (
+          <span key={s.id} className={`text-xs px-2 py-1 rounded ${s.color}`}>
+            {s.label}: {counts[s.id] || 0}
+          </span>
+        ))}
+      </div>
+      <button onClick={() => setOpen((o) => !o)} className="text-sm rounded-md border border-stone-300 px-3 py-1.5 mb-3">
+        {open ? "Cancel" : "+ Add contact"}
+      </button>
+      {open && (
+        <div className="grid grid-cols-2 gap-2 mb-3 p-3 bg-stone-50 rounded-md">
+          <input className="rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Name" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+          <input className="rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Role / title" value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value })} />
+          <input className="rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Company" value={draft.company} onChange={(e) => setDraft({ ...draft, company: e.target.value })} />
+          <input className="rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Source (LinkedIn, alum, etc.)" value={draft.source} onChange={(e) => setDraft({ ...draft, source: e.target.value })} />
+          <textarea className="col-span-2 rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Notes / weak-tie reason" rows={2} value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
+          <button onClick={submit} className="col-span-2 rounded-md bg-ink text-paper px-3 py-2 text-sm">Save contact</button>
+        </div>
+      )}
+      {(discovery || []).length === 0 ? (
+        <p className="text-xs text-stone-400 italic">No contacts yet. Start with 3 alumni this week.</p>
+      ) : (
+        <ul className="space-y-2">
+          {(discovery || []).map((c) => {
+            const statusObj = DISCOVERY_STATUSES.find((s) => s.id === c.status) || DISCOVERY_STATUSES[0];
+            return (
+              <li key={c.id} className="border border-stone-200 rounded-md p-2.5 text-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{c.name} <span className="text-stone-500 font-normal">— {c.role || "?"} @ {c.company || "?"}</span></div>
+                    <div className="text-xs text-stone-500 mt-0.5">{c.source} · last touch {formatShort(c.lastTouchISO)}</div>
+                    {c.notes && <div className="text-xs text-stone-600 mt-1 italic">{c.notes}</div>}
+                  </div>
+                  <button onClick={() => onDelete(c.id)} className="text-stone-300 hover:text-red-500 text-xs">×</button>
+                </div>
+                <div className="flex gap-1 mt-2 flex-wrap">
+                  {DISCOVERY_STATUSES.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => onUpdate(c.id, { status: s.id, lastTouchISO: todayISO() })}
+                      className={`text-[10px] px-2 py-0.5 rounded ${c.status === s.id ? s.color : "bg-stone-50 text-stone-400 hover:bg-stone-100"}`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </SectionCard>
+  );
+}
