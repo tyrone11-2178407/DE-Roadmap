@@ -1045,6 +1045,14 @@ export default function App() {
             }}
             onDeleteLesson={deleteLesson}
             onStartReview={(ids) => setReviewQueueIds(ids)}
+            onAddDiscovery={addDiscoveryContact}
+            onUpdateDiscovery={updateDiscoveryContact}
+            onDeleteDiscovery={deleteDiscoveryContact}
+            onAddStar={addStarStory}
+            onUpdateStar={updateStarStory}
+            onDeleteStar={deleteStarStory}
+            onAddPipelineStage={addPipelineStage}
+            onSetPipelineOffer={setPipelineOffer}
           />
         )}
         {tab === "resources" && <Resources currentStageId={currentStageId} />}
@@ -2043,10 +2051,35 @@ function StageDetail({ stage, state, onShipMVP, onUnshipMVP }) {
 
 // ---------- Career HQ ----------
 
-function CareerHQ({ state, onSetApplicationStatus, onAddArtifact, onRemoveArtifact, onSetGate, onOpenLessonModal, onEditLesson, onDeleteLesson, onStartReview }) {
+function CareerHQ({
+  state,
+  onSetApplicationStatus, onAddArtifact, onRemoveArtifact, onSetGate,
+  onOpenLessonModal, onEditLesson, onDeleteLesson, onStartReview,
+  onAddDiscovery, onUpdateDiscovery, onDeleteDiscovery,
+  onAddStar, onUpdateStar, onDeleteStar,
+  onAddPipelineStage, onSetPipelineOffer,
+}) {
   return (
     <div className="space-y-6">
       <ApplicationTimeline state={state} onSetStatus={onSetApplicationStatus} />
+      <PipelineTracker
+        pipeline={state.pipeline}
+        applications={state.applications}
+        onAddStage={onAddPipelineStage}
+        onSetOffer={onSetPipelineOffer}
+      />
+      <DiscoveryCRM
+        discovery={state.discovery}
+        onAdd={onAddDiscovery}
+        onUpdate={onUpdateDiscovery}
+        onDelete={onDeleteDiscovery}
+      />
+      <StarStoriesTracker
+        stories={state.starStories}
+        onAdd={onAddStar}
+        onUpdate={onUpdateStar}
+        onDelete={onDeleteStar}
+      />
       <GapRadar state={state} onSetGate={onSetGate} />
       <LessonsPanel
         state={state}
