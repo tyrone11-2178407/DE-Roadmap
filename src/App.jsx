@@ -3473,3 +3473,71 @@ function DiscoveryCRM({ discovery, onAdd, onUpdate, onDelete }) {
     </SectionCard>
   );
 }
+
+const AMAZON_LPS = [
+  "Customer Obsession", "Ownership", "Invent and Simplify", "Are Right, A Lot",
+  "Learn and Be Curious", "Hire and Develop the Best", "Insist on the Highest Standards",
+  "Think Big", "Bias for Action", "Frugality", "Earn Trust", "Dive Deep",
+  "Have Backbone; Disagree and Commit", "Deliver Results", "Strive to be Earth's Best Employer",
+  "Success and Scale Bring Broad Responsibility",
+];
+
+function StarStoriesTracker({ stories, onAdd, onUpdate, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState({ title: "", body: "", lp: "" });
+  function submit() {
+    if (!draft.title.trim()) return;
+    onAdd(draft);
+    setDraft({ title: "", body: "", lp: "" });
+    setOpen(false);
+  }
+  const target = 15;
+  const count = (stories || []).length;
+  const pct = Math.min(100, Math.round((count / target) * 100));
+  return (
+    <SectionCard title={`STAR Stories — ${count} / ${target}`}>
+      <div className="h-2 bg-stone-100 rounded-full overflow-hidden mb-3">
+        <div className="h-full bg-amber-400" style={{ width: `${pct}%` }} />
+      </div>
+      <button onClick={() => setOpen((o) => !o)} className="text-sm rounded-md border border-stone-300 px-3 py-1.5 mb-3">
+        {open ? "Cancel" : "+ Add STAR story"}
+      </button>
+      {open && (
+        <div className="flex flex-col gap-2 mb-3 p-3 bg-stone-50 rounded-md">
+          <input className="rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Title (e.g. Led MLDS group project)" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+          <select className="rounded border border-stone-300 px-2 py-1.5 text-sm" value={draft.lp} onChange={(e) => setDraft({ ...draft, lp: e.target.value })}>
+            <option value="">— Mapped LP / theme —</option>
+            <option value="Leadership">Leadership</option>
+            <option value="Conflict">Conflict</option>
+            <option value="Failure">Failure</option>
+            <option value="Ambiguity">Ambiguity</option>
+            <option value="Customer">Customer / stakeholder</option>
+            <option value="Technical">Technical</option>
+            <optgroup label="Amazon LPs">
+              {AMAZON_LPS.map((lp) => <option key={lp} value={lp}>{lp}</option>)}
+            </optgroup>
+          </select>
+          <textarea className="rounded border border-stone-300 px-2 py-1.5 text-sm" placeholder="Story (S-T-A-R format)" rows={4} value={draft.body} onChange={(e) => setDraft({ ...draft, body: e.target.value })} />
+          <button onClick={submit} className="rounded-md bg-ink text-paper px-3 py-2 text-sm">Save story</button>
+        </div>
+      )}
+      <ul className="space-y-2">
+        {(stories || []).map((s) => (
+          <li key={s.id} className="border border-stone-200 rounded-md p-2 text-sm">
+            <div className="flex justify-between items-start gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="font-medium">{s.title}</div>
+                {s.lp && <div className="text-xs text-amber-700 mt-0.5">{s.lp}</div>}
+                {s.body && <div className="text-xs text-stone-600 mt-1 whitespace-pre-line">{s.body}</div>}
+              </div>
+              <button onClick={() => onDelete(s.id)} className="text-stone-300 hover:text-red-500 text-xs">×</button>
+            </div>
+            <button onClick={() => onUpdate(s.id, { lastDrilledISO: todayISO() })} className="text-xs text-stone-500 mt-1.5">
+              Mark drilled today {s.lastDrilledISO ? `(last ${formatShort(s.lastDrilledISO)})` : ""}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </SectionCard>
+  );
+}
