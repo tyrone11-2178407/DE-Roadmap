@@ -383,10 +383,11 @@ const PRIORITY_STYLES = {
 };
 
 const SPRINT_TARGETS = [
-  { date: "Aug 15", target: "5+ rolling FDE applications submitted" },
-  { date: "Sep 1", target: "All cohort-based programs applied to" },
-  { date: "Oct 1", target: "20+ applications total" },
-  { date: "Nov 15", target: "25+ applications total" },
+  { date: "Jul 16", target: "Phase 1 done — 75 SQL · 3 dashboards · 1 pandas notebook · 10 STARs" },
+  { date: "Aug 6", target: "Phase 2 done — 1 portfolio project shipped to GitHub" },
+  { date: "Sep 3", target: "Phase 3 done — 2 branches deep-prepped · 8 mocks · 50 LeetCode mediums" },
+  { date: "Oct 1", target: "100+ applications submitted across 3 tracks" },
+  { date: "Dec 31", target: "1 offer accepted at $80k+ base" },
 ];
 
 const GAP_RADAR_GATES = {
