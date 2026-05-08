@@ -898,6 +898,86 @@ export default function App() {
     }));
   }
 
+  function addCapture(text) {
+    if (!text || !text.trim()) return;
+    setState((prev) => ({
+      ...prev,
+      capture: [{ id: uuid(), dateISO: todayISO(), text: text.trim() }, ...(prev.capture || [])],
+    }));
+  }
+  function deleteCapture(id) {
+    setState((prev) => ({ ...prev, capture: (prev.capture || []).filter((c) => c.id !== id) }));
+  }
+  function setEnergyToday(field, value) {
+    const today = todayISO();
+    setState((prev) => ({
+      ...prev,
+      energy: { ...(prev.energy || {}), [today]: { ...((prev.energy || {})[today] || {}), [field]: value } },
+    }));
+  }
+  function logLeetcode({ problem, difficulty, notes }) {
+    setState((prev) => {
+      const lc = prev.leetcode || { easySolved: 0, mediumSolved: 0, log: [] };
+      const entry = { id: uuid(), dateISO: todayISO(), problem: problem.trim(), difficulty, notes: (notes || "").trim() };
+      return {
+        ...prev,
+        leetcode: {
+          easySolved: lc.easySolved + (difficulty === "easy" ? 1 : 0),
+          mediumSolved: lc.mediumSolved + (difficulty === "medium" ? 1 : 0),
+          log: [entry, ...(lc.log || [])],
+        },
+      };
+    });
+  }
+  function addDiscoveryContact(entry) {
+    setState((prev) => ({
+      ...prev,
+      discovery: [{ id: uuid(), lastTouchISO: todayISO(), status: "outreach", ...entry }, ...(prev.discovery || [])],
+    }));
+  }
+  function updateDiscoveryContact(id, patch) {
+    setState((prev) => ({
+      ...prev,
+      discovery: (prev.discovery || []).map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    }));
+  }
+  function deleteDiscoveryContact(id) {
+    setState((prev) => ({ ...prev, discovery: (prev.discovery || []).filter((c) => c.id !== id) }));
+  }
+  function addStarStory(story) {
+    setState((prev) => ({
+      ...prev,
+      starStories: [{ id: uuid(), lastDrilledISO: null, ...story }, ...(prev.starStories || [])],
+    }));
+  }
+  function updateStarStory(id, patch) {
+    setState((prev) => ({
+      ...prev,
+      starStories: (prev.starStories || []).map((s) => (s.id === id ? { ...s, ...patch } : s)),
+    }));
+  }
+  function deleteStarStory(id) {
+    setState((prev) => ({ ...prev, starStories: (prev.starStories || []).filter((s) => s.id !== id) }));
+  }
+  function addPipelineStage(companyId, stage) {
+    setState((prev) => {
+      const existing = (prev.pipeline || {})[companyId] || { stages: [], offerStatus: null };
+      return {
+        ...prev,
+        pipeline: {
+          ...(prev.pipeline || {}),
+          [companyId]: { ...existing, stages: [...existing.stages, { ...stage, dateISO: stage.dateISO || todayISO() }] },
+        },
+      };
+    });
+  }
+  function setPipelineOffer(companyId, offerStatus) {
+    setState((prev) => {
+      const existing = (prev.pipeline || {})[companyId] || { stages: [], offerStatus: null };
+      return { ...prev, pipeline: { ...(prev.pipeline || {}), [companyId]: { ...existing, offerStatus } } };
+    });
+  }
+
   return (
     <div className="min-h-screen bg-paper text-ink">
       <Header trackInfo={trackInfo} streak={state.streak} />
