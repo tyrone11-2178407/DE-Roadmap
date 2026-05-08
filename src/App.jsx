@@ -459,9 +459,12 @@ const ARTIFACT_KINDS = [
 ];
 
 const FUTURE_PIVOTS = [
-  { id: "da", title: "Pure Data Analyst", note: "Available as a fallback inside the BIE track. Not the primary pitch — FDE/SE is." },
-  { id: "ml", title: "ML Engineer", note: "Not on this plan. Past resume projects don't count and won't be defended." },
-  { id: "de", title: "Data Engineer (pipelines)", note: "Archived: Zoomcamp, Airflow, Docker. Not on the Dec 2026 path." },
+  { id: "fde", title: "Forward Deployed Engineer (Anthropic / Sierra / Decagon)", note: "Stretch role for Y3-Y5 once you've shipped customer-facing AI work and built a referral network. Not the new-grad door." },
+  { id: "se", title: "Sales / Solutions Engineer at SaaS", note: "Possible Y2-Y3 transition from CSM or IC. Requires demo skill + light Python." },
+  { id: "ce-faang", title: "Customer Engineer at Google / AWS / Microsoft", note: "Possible Y2-Y3 if LeetCode side track sticks. Python is the gating skill." },
+  { id: "ds", title: "Data Scientist", note: "Requires Python depth + stats. Add 12+ months of LeetCode + statistics if you want this." },
+  { id: "mbb", title: "MBB Strategy Consulting", note: "Stretch — only if you commit to 50+ cases. Hyper-competitive entry but possible after Y2 with consulting experience." },
+  { id: "pm", title: "Product Manager (APM programs)", note: "Highly competitive. Possible after Y2-Y3 with proven product analytics work." },
 ];
 
 const TABS = [
