@@ -328,6 +328,21 @@ const RESOURCES = {
   "levels-fyi": { name: "levels.fyi — compensation", url: "https://www.levels.fyi/", tag: "Free" },
   "lewis-lin": { name: "Lewis C. Lin YouTube — salary negotiation 101", url: "https://www.youtube.com/@LewisLin", tag: "Free" },
   "glassdoor-blind": { name: "Glassdoor + Blind — interview intel", url: "https://www.teamblind.com/", tag: "Free" },
+
+  // V2 additions
+  "tableau-public": { name: "Tableau Public — free training", url: "https://public.tableau.com/app/learn/sample-data", tag: "Free" },
+  "powerbi-learn": { name: "Microsoft Learn — Power BI", url: "https://learn.microsoft.com/en-us/training/powerplatform/power-bi", tag: "Free" },
+  "exceljet": { name: "ExcelJet — formula tutorials", url: "https://exceljet.net/", tag: "Free" },
+  "tableau-cert": { name: "Tableau Specialist cert (~$100)", url: "https://www.tableau.com/learn/certification/specialist", tag: "Tableau · ~$100" },
+  "pl-300": { name: "PL-300 Power BI Data Analyst (~$165)", url: "https://learn.microsoft.com/en-us/credentials/certifications/data-analyst-associate/", tag: "Microsoft · ~$165" },
+  "neetcode": { name: "NeetCode 150", url: "https://neetcode.io/", tag: "Free" },
+  "victor-cheng": { name: "Case Interview Secrets — Victor Cheng (free PDF)", url: "https://www.caseinterview.com/", tag: "Free PDF" },
+  "spin-selling": { name: "SPIN Selling — Neil Rackham", url: "https://www.amazon.com/SPIN-Selling-Neil-Rackham/dp/0070511136", tag: "Library copy" },
+  "challenger-sale": { name: "The Challenger Sale", url: "https://www.amazon.com/Challenger-Sale-Taking-Customer-Conversation/dp/1591844355", tag: "Library copy" },
+  "kaggle-learn": { name: "Kaggle Learn — pandas", url: "https://www.kaggle.com/learn/pandas", tag: "Free" },
+  "futureforce": { name: "Salesforce Futureforce", url: "https://www.salesforce.com/company/careers/university-recruiting/", tag: "Tech Sales · new grad" },
+  "ms-aspire": { name: "Microsoft Aspire (Sales)", url: "https://careers.microsoft.com/v2/global/en/students.html", tag: "Tech Sales · new grad" },
+  "aws-techu": { name: "AWS Tech U Sales", url: "https://www.amazon.jobs/en/teams/AWSTechU", tag: "Tech Sales · new grad" },
 };
 
 const ROLLING_APPLICATIONS = [
@@ -2791,7 +2806,54 @@ function ArtifactWall({ state, onAdd, onRemove }) {
 
 // ---------- Resources tab ----------
 
+function ResourceCard({ id }) {
+  const r = RESOURCES[id];
+  if (!r) return null;
+  return (
+    <a
+      href={r.url}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-start justify-between gap-2 rounded-lg border border-stone-200 bg-white p-2.5 text-sm hover:border-stone-400"
+    >
+      <div className="min-w-0">
+        <div className="font-medium text-stone-900">{r.name}</div>
+        <div className="mt-0.5 text-[10px] uppercase tracking-widest text-stone-400">{r.tag}</div>
+      </div>
+      <ExternalLink size={12} className="mt-1 shrink-0 text-stone-400" />
+    </a>
+  );
+}
+
+function ResourceGroup({ title, ids, highlight = false }) {
+  const validIds = ids.filter((id) => !!RESOURCES[id]);
+  if (validIds.length === 0) return null;
+  return (
+    <section
+      className={`rounded-2xl border p-5 shadow-sm ${highlight ? "border-amber-300 bg-amber-50/40" : "border-stone-200 bg-white"}`}
+    >
+      <h2 className="font-serif text-xl tracking-tight">{title}</h2>
+      <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+        {validIds.map((id) => (
+          <ResourceCard key={id} id={id} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Resources({ currentStageId }) {
+  // Stage ranges for "current stage" highlighting per group
+  const foundationStages = ["stage-1", "stage-2", "stage-3"];
+  const portfolioStages = ["stage-4"];
+  const branchStages = ["stage-5"];
+  const applyStages = ["stage-6", "stage-7"];
+
+  const inFoundation = foundationStages.includes(currentStageId);
+  const inPortfolio = portfolioStages.includes(currentStageId);
+  const inBranch = branchStages.includes(currentStageId);
+  const inApply = applyStages.includes(currentStageId);
+
   return (
     <div className="space-y-6">
       <SectionCard title="Resource Strategy" dark>
@@ -2803,49 +2865,86 @@ function Resources({ currentStageId }) {
             <span className="font-semibold">DataCamp</span> — 3-month subscription, May–July only. Front-load SQL/Python/pandas. Surface-level for AI/LLM.
           </li>
           <li>
-            <span className="font-semibold">Free fills</span> — Anthropic docs, Eugene Yan, Hamel evals, Real Python, Missing Semester, Mode SQL, ExamPro YouTube.
+            <span className="font-semibold">Free fills</span> — Tableau Public, Power BI Learn, ExcelJet, Kaggle Learn, Real Python, Mode SQL, Eugene Yan, Hamel evals.
           </li>
           <li>
-            <span className="font-semibold">AWS cert</span> — Stephane Maarek Udemy (~$24 for both courses) + Tutorials Dojo (~$30) + exam fees (~$250).
+            <span className="font-semibold">Certs</span> — Tableau Specialist (~$100) + PL-300 Power BI (~$165) + AWS CCP/SAA (~$250 exams).
           </li>
-          <li className="text-stone-400">Total paid spend across 8 months: ~$310.</li>
+          <li className="text-stone-400">Total paid spend across 8 months: ~$310 base + optional certs.</li>
         </ul>
       </SectionCard>
 
-      {STAGES.map((s) => {
-        const items = [...s.primary, ...s.gapFill].map((id) => ({ id, ...RESOURCES[id] })).filter((r) => r.name);
-        if (items.length === 0) return null;
-        return (
-          <section
-            key={s.id}
-            className={`rounded-2xl border p-5 shadow-sm ${s.id === currentStageId ? "border-amber-300 bg-amber-50/40" : "border-stone-200 bg-white"}`}
-          >
-            <div className="flex items-baseline justify-between">
-              <h2 className="font-serif text-xl tracking-tight">
-                Stage {s.order}: {s.title}
-              </h2>
-              <span className="text-xs uppercase tracking-widest text-stone-400">{s.weeks}</span>
-            </div>
-            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-              {items.map((r) => (
-                <a
-                  key={r.id}
-                  href={r.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-start justify-between gap-2 rounded-lg border border-stone-200 bg-white p-2.5 text-sm hover:border-stone-400"
-                >
-                  <div className="min-w-0">
-                    <div className="font-medium text-stone-900">{r.name}</div>
-                    <div className="mt-0.5 text-[10px] uppercase tracking-widest text-stone-400">{r.tag}</div>
-                  </div>
-                  <ExternalLink size={12} className="mt-1 shrink-0 text-stone-400" />
-                </a>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {/* Foundation — SQL (Stages 1-3) */}
+      <ResourceGroup
+        title="Foundation — SQL"
+        highlight={inFoundation}
+        ids={[
+          "dc-sql-fundamentals", "dc-joining-sql", "dc-intermediate-sql",
+          "dc-window-sql", "dc-data-manip-sql", "iq-sql",
+          "mode-sql", "select-star", "stratascratch", "pg-explain",
+        ]}
+      />
+
+      {/* Foundation — Excel / Dashboards */}
+      <ResourceGroup
+        title="Foundation — Excel / Dashboards"
+        highlight={inFoundation}
+        ids={[
+          "tableau-public", "powerbi-learn", "exceljet",
+          "tableau-cert", "pl-300",
+        ]}
+      />
+
+      {/* Foundation — Python */}
+      <ResourceGroup
+        title="Foundation — Python"
+        highlight={inFoundation}
+        ids={[
+          "dc-python-fund", "dc-intermediate-python", "dc-pandas-manip",
+          "dc-pandas-joining", "dc-dates", "dc-functions",
+          "real-python", "kaggle-learn",
+        ]}
+      />
+
+      {/* Portfolio (Stage 4) */}
+      <ResourceGroup
+        title="Portfolio"
+        highlight={inPortfolio}
+        ids={["loom", "vercel", "railway", "huggingface-spaces"]}
+      />
+
+      {/* Branches — Cases */}
+      <ResourceGroup
+        title="Branches — Cases"
+        highlight={inBranch}
+        ids={["victor-cheng", "iq-case", "pramp"]}
+      />
+
+      {/* Branches — Sales */}
+      <ResourceGroup
+        title="Branches — Sales"
+        highlight={inBranch}
+        ids={["spin-selling", "challenger-sale", "futureforce", "ms-aspire", "aws-techu"]}
+      />
+
+      {/* Branches — Analyst */}
+      <ResourceGroup
+        title="Branches — Analyst"
+        highlight={inBranch}
+        ids={["iq-case", "eugene-yan", "hamel-evals"]}
+      />
+
+      {/* Apply / Sprint (Stages 6-7) */}
+      <ResourceGroup
+        title="Apply / Sprint"
+        highlight={inApply}
+        ids={[
+          "iq-sql", "iq-python", "iq-case", "pramp",
+          "exponent", "levels-fyi", "lewis-lin",
+          "glassdoor-blind", "nwu-careers",
+          "amazon-lp", "microsoft-culture", "salesforce-v2mom",
+        ]}
+      />
     </div>
   );
 }
