@@ -3306,3 +3306,87 @@ function EnergyBudget({ todayEnergy, onSet }) {
     </SectionCard>
   );
 }
+
+function LeetCodeTracker({ leetcode, onLog }) {
+  const [problem, setProblem] = useState("");
+  const [difficulty, setDifficulty] = useState("easy");
+  const [notes, setNotes] = useState("");
+  const lc = leetcode || { easySolved: 0, mediumSolved: 0, log: [] };
+
+  function submit() {
+    if (!problem.trim()) return;
+    onLog({ problem, difficulty, notes });
+    setProblem("");
+    setNotes("");
+  }
+
+  const easyMilestone = 50;
+  const mediumMilestone = 80;
+  const easyPct = Math.min(100, Math.round((lc.easySolved / easyMilestone) * 100));
+  const mediumPct = Math.min(100, Math.round((lc.mediumSolved / mediumMilestone) * 100));
+
+  return (
+    <SectionCard title="LeetCode Side Track (NeetCode 150)">
+      <p className="text-xs text-stone-500 mb-3">30 min/day. Side goal — not required for your tracks.</p>
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="rounded-md border border-stone-200 p-3">
+          <div className="flex justify-between text-xs text-stone-500 mb-1">
+            <span>Easy</span>
+            <span>{lc.easySolved} / {easyMilestone}</span>
+          </div>
+          <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-400" style={{ width: `${easyPct}%` }} />
+          </div>
+        </div>
+        <div className="rounded-md border border-stone-200 p-3">
+          <div className="flex justify-between text-xs text-stone-500 mb-1">
+            <span>Medium</span>
+            <span>{lc.mediumSolved} / {mediumMilestone}</span>
+          </div>
+          <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-400" style={{ width: `${mediumPct}%` }} />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <input
+          className="rounded-md border border-stone-300 px-3 py-2 text-sm"
+          placeholder="Problem name (e.g. Two Sum)"
+          value={problem}
+          onChange={(e) => setProblem(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            className="rounded-md border border-stone-300 px-2 py-2 text-sm"
+          >
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+          </select>
+          <input
+            className="flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm"
+            placeholder="Notes (pattern used)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+          <button onClick={submit} className="rounded-md bg-ink text-paper px-4 py-2 text-sm">Log</button>
+        </div>
+      </div>
+      {lc.log && lc.log.length > 0 && (
+        <details className="mt-3 text-sm">
+          <summary className="text-xs text-stone-500 cursor-pointer">Recent log ({lc.log.length})</summary>
+          <ul className="mt-2 space-y-1">
+            {lc.log.slice(0, 10).map((e) => (
+              <li key={e.id} className="text-xs text-stone-600 flex gap-2">
+                <span className="text-stone-400 w-16 shrink-0">{formatShort(e.dateISO)}</span>
+                <span className={`uppercase text-[10px] px-1.5 rounded ${e.difficulty === "easy" ? "bg-emerald-100 text-emerald-700" : "bg-indigo-100 text-indigo-700"}`}>{e.difficulty}</span>
+                <span>{e.problem}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </SectionCard>
+  );
+}
