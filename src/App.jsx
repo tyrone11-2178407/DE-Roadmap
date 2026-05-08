@@ -518,6 +518,17 @@ function createInitialState() {
     gapRadar: {},
     lessons: [],
     lessonsMondayPromptISO: null,
+    // V2 additions
+    capture: [],              // [{id, dateISO, text}] — quick-dump inbox
+    energy: {},               // { "YYYY-MM-DD": { sleep: bool, move: bool, social: bool } }
+    leetcode: {               // NeetCode 150 side track
+      easySolved: 0,
+      mediumSolved: 0,
+      log: [],                // [{id, dateISO, problem, difficulty, notes}]
+    },
+    discovery: [],            // [{id, name, role, company, source, status, lastTouchISO, nextStepISO, notes}]
+    pipeline: {},              // { companyId: { stages: [{name, dateISO, notes}], offerStatus } }
+    starStories: [],          // [{id, title, body, lp, lastDrilledISO}]
   };
 }
 
