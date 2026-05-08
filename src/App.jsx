@@ -1009,6 +1009,10 @@ export default function App() {
               dismissMondayPrompt();
             }}
             onDismissMondayPrompt={dismissMondayPrompt}
+            onAddCapture={addCapture}
+            onDeleteCapture={deleteCapture}
+            onSetEnergy={setEnergyToday}
+            onLogLeetcode={logLeetcode}
           />
         )}
         {tab === "map" && (
@@ -1241,7 +1245,7 @@ function SectionCard({ title, emphasis = false, children, footerNote, dark = fal
 
 // ---------- Today screen ----------
 
-function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift, onOpenLessonModal, onStartMondayReview, onDismissMondayPrompt }) {
+function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift, onOpenLessonModal, onStartMondayReview, onDismissMondayPrompt, onAddCapture, onDeleteCapture, onSetEnergy, onLogLeetcode }) {
   const checks = state.today.checks;
   const mode = state.today.anchorMode;
   const anchorComplete =
@@ -1343,6 +1347,21 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
           <span className="font-semibold">Copilot OFF.</span>
         </p>
       </SectionCard>
+
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <EnergyBudget
+          todayEnergy={(state.energy || {})[todayISO()]}
+          onSet={onSetEnergy}
+        />
+        <CaptureInbox
+          items={state.capture || []}
+          onAdd={onAddCapture}
+          onDelete={onDeleteCapture}
+        />
+      </div>
+      <div className="mt-4">
+        <LeetCodeTracker leetcode={state.leetcode} onLog={onLogLeetcode} />
+      </div>
     </div>
   );
 }
