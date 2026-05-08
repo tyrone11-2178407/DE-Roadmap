@@ -3274,3 +3274,35 @@ function CaptureInbox({ items, onAdd, onDelete }) {
     </SectionCard>
   );
 }
+
+function EnergyBudget({ todayEnergy, onSet }) {
+  const fields = [
+    { key: "sleep", label: "Slept 7h+" },
+    { key: "move", label: "Moved 20min" },
+    { key: "social", label: "1+ social interaction" },
+  ];
+  const e = todayEnergy || {};
+  const greenCount = fields.filter((f) => e[f.key]).length;
+  const prescription = greenCount >= 2
+    ? "Green day — Full or Half mode."
+    : greenCount === 1
+    ? "Yellow day — Half mode recommended."
+    : "Red day — MVD only. Don't push.";
+  return (
+    <SectionCard title="Energy Budget">
+      <p className="text-xs text-stone-500 mb-2">{prescription}</p>
+      <div className="grid grid-cols-3 gap-2">
+        {fields.map((f) => (
+          <label key={f.key} className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-stone-200 px-3 py-2">
+            <input
+              type="checkbox"
+              checked={!!e[f.key]}
+              onChange={(ev) => onSet(f.key, ev.target.checked)}
+            />
+            <span>{f.label}</span>
+          </label>
+        ))}
+      </div>
+    </SectionCard>
+  );
+}
