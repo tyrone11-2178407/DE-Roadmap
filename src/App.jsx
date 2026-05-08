@@ -589,7 +589,18 @@ function loadState() {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return createInitialState();
     const parsed = JSON.parse(raw);
-    return { ...createInitialState(), ...parsed };
+    const defaults = createInitialState();
+    return {
+      ...defaults,
+      ...parsed,
+      // ensure nested objects from V2 have defaults even if old localStorage shape exists
+      capture: parsed.capture || [],
+      energy: parsed.energy || {},
+      leetcode: parsed.leetcode || defaults.leetcode,
+      discovery: parsed.discovery || [],
+      pipeline: parsed.pipeline || {},
+      starStories: parsed.starStories || [],
+    };
   } catch {
     return createInitialState();
   }
