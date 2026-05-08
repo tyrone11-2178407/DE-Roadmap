@@ -1271,6 +1271,42 @@ function SectionCard({ title, emphasis = false, children, footerNote, dark = fal
   );
 }
 
+function KillSwitchBanner({ state, calendar }) {
+  const today = todayISO();
+  const triggers = [];
+  // June 1 SQL gate
+  if (today >= "2026-06-01") {
+    const sqlSolved = (state.artifacts || []).filter((a) => a.kind === "sql_problem").length;
+    if (sqlSolved < 25) {
+      triggers.push("SQL is below MVP (25). Drop Stage 3 Python, double down on SQL.");
+    }
+  }
+  // July 30 portfolio gate
+  if (today >= "2026-07-30" && !state.stages?.["stage-4"]?.mvpShipped) {
+    triggers.push("Phase 1 not done by Jul 30. Skip Phase 2 polish, jump to Phase 3 branches with what you have.");
+  }
+  // Sep 3 portfolio gate
+  if (today >= "2026-09-03" && !state.stages?.["stage-4"]?.mvpShipped) {
+    triggers.push("No portfolio by Sep 3. Drop LeetCode, ship anything.");
+  }
+  // Oct 15 interview gate
+  if (today >= "2026-10-15") {
+    const fr = Object.values(state.pipeline || {}).filter((p) => p.stages.some((s) => s.name === "Recruiter")).length;
+    if (fr === 0) {
+      triggers.push("No first-round interviews by Oct 15. Drop Big 4 deep prep, lean Sales + Analyst safety net.");
+    }
+  }
+  if (triggers.length === 0) return null;
+  return (
+    <div className="rounded-md border-l-4 border-rose-400 bg-rose-50 px-4 py-3 mb-4">
+      <div className="text-sm font-semibold text-rose-700 mb-1">Kill switch triggered</div>
+      <ul className="list-disc pl-5 text-xs text-rose-700 space-y-0.5">
+        {triggers.map((t, i) => <li key={i}>{t}</li>)}
+      </ul>
+    </div>
+  );
+}
+
 // ---------- Today screen ----------
 
 function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCheckIn, onSetMode, onToggleCheck, onShipMVP, onUnshipMVP, onShiftCalendar, onResetCalendarShift, onOpenLessonModal, onStartMondayReview, onDismissMondayPrompt, onAddCapture, onDeleteCapture, onSetEnergy, onLogLeetcode }) {
@@ -1314,6 +1350,8 @@ function Today({ state, currentStage, calendar, isTrackLocked, onOpenTrack, onCh
 
   return (
     <div className="space-y-5 fade-up">
+      <KillSwitchBanner state={state} calendar={calendar} />
+
       <CountdownStrip days={daysToPeak} targetISO={APPLICATION_PEAK_DATE} />
 
       <TrackLockBanner state={state} isTrackLocked={isTrackLocked} onOpen={onOpenTrack} />
